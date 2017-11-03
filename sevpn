@@ -1,0 +1,721 @@
+#!/bin/bash
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+export PATH
+myfile=/usr/bin/sevpn
+nettools=/usr/bin/netstat
+rm -f sevpn
+clear
+
+
+if [ ! -f $nettools ]; then 
+    echo "缺少组件,正在安装...骚等!"
+	yum install net-tools -y >/dev/null 2>&1
+	apt-get install net-tools -y >/dev/null 2>&1
+fi
+
+rm -rf sevpn* >/dev/null 2>&1
+function check_ip(){
+IP=`wget http://members.3322.org/dyndns/getip -O - -q; echo`
+    if [[ "$IP" == "" ]];then
+    echo "自动获取服务器ip失败，请手动输入ip："
+    read IP
+    fi
+}
+function rootness(){
+    if [[ $EUID -ne 0 ]]; then
+       echo "错误：请使用root用户进行安装!" 
+	   rm -rf sevpn* >/dev/null 2>&1
+       exit 1
+    fi
+}
+
+# Get version
+function getversion(){
+    if [[ -s /etc/redhat-release ]];then
+        grep -oE  "[0-9.]+" /etc/redhat-release
+    else    
+        grep -oE  "[0-9.]+" /etc/issue
+    fi    
+}
+
+# CentOS version
+function centosversion(){
+    local code=$1
+    local version="`getversion`"
+    local main_ver=${version%%.*}
+    if [ $main_ver == $code ];then
+        return 0
+    else
+        return 1
+    fi        
+}
+
+#检查操作系统
+function system(){
+    if [ -f /etc/redhat-release ];then
+        OS=centos
+    elif [ ! -z "`cat /etc/issue | grep bian`" ];then
+        OS=debian
+    elif [ ! -z "`cat /etc/issue | grep Ubuntu`" ];then
+        OS=ubuntu
+    else
+        echo -e "\e[1;31m\n非常抱歉,不支持的操作系统!3秒后将返回菜单!\e[0m"
+        sleep 3
+		memu
+    fi
+	echo 操作系统: $OS
+	sleep 3
+}   
+#判定系统位数
+function set32_64bit(){
+    if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ] ; then
+        echo "64位系统!"
+		sleep 3
+		set64
+    else
+	    echo "32位系统!"
+		sleep 3
+        set32
+
+    fi
+
+}
+#安装依赖
+function install_dep(){
+    if [ $OS = centos ]; then
+        yum install gcc gcc-c++ make unzip zip expect tar java openssl psmisc net-tools -y
+    else
+        apt-get update -y
+        apt-get install gcc make expect unzip zip psmisc curl -y
+		apt-get install default-jre openssl -y
+    fi
+
+
+}
+zewin=https://
+function set32(){
+rm -rf /vpnserver* >/dev/null 2>&1
+cd /
+wget ${zewin}${zewinz}${ewin}${ewinz}/softether-vpnserver-v4.21-9613-beta-2016.04.24-linux-x86-32bit.tar.gz >/dev/null 2>&1
+tar -zxvf softether-vpnserver-v4.21-9613-beta-2016.04.24-linux-x86-32bit.tar.gz >/dev/null 2>&1
+rm -rf /softether-vpnserve*
+}
+
+
+function set64(){
+rm -rf /vpnserver* >/dev/null 2>&1
+cd /
+wget ${zewin}${zewinz}${ewin}${ewinz}/softether-vpnserver-v4.21-9613-beta-2016.04.24-linux-x64-64bit.tar.gz >/dev/null 2>&1
+tar -zxvf softether-vpnserver-v4.21-9613-beta-2016.04.24-linux-x64-64bit.tar.gz >/dev/null 2>&1
+rm -rf /softether-vpnserve*
+}
+
+function get_ready(){
+echo -e "感谢使用一键Sevpn脚本,我是\033[40;31m 寂寞爱上海 \033[0m!"
+read -p "(回车将默认设置Sevpn管理密码为: yaohuo):" VPNPASSWD
+[ -z "$VPNPASSWD" ] && VPNPASSWD="yaohuo"
+echo
+echo "---------------------------------------"
+echo "Ok，Sevpn管理密码已设置为 = $VPNPASSWD"
+echo "---------------------------------------"
+echo
+echo -e "输入你要创建的VPN账号"
+read -p "(回车将默认设置VPN账号为：yaohuo):" USER
+[ -z "$USER" ] && USER="yaohuo"
+echo
+echo "---------------------------"
+echo "Ok，VPN账号已设置为 = $USER"
+echo "---------------------------"
+echo
+echo -e "输入VPN账号的密码"
+read -p "(回车将默认设置相应$USER账号密码为：yaohuo):" USERPWD
+[ -z "$USERPWD" ] && USERPWD="yaohuo"
+echo
+echo "--------------------------------"
+echo "Ok，$USER密码已设置为 = $USERPWD"
+echo "--------------------------------"
+echo
+echo "SeVPN默认开启440TCP端口"
+echo "默认设置MP端口为: 8080(三网通吃)"
+
+echo -e "输入可以免流的host"
+read -p "(回车将默认设置相应自定义host为：migumovie.lovev.com):" HOST
+[ -z "$HOST" ] && HOST="migumovie.lovev.com"
+echo
+echo "----------------------------------"
+echo "Ok，host已设置为 = $HOST"
+echo "----------------------------------"
+echo
+echo -e -n "\e[1;31m\n个人设置完毕,请按回车开始安装!\e[0m"
+read
+}
+#安装sevpn
+zewinz=git.oschina.net
+function install_sevpn(){
+    check_ip
+    get_ready
+	system
+echo "安装环境..."
+sleep 2
+install_dep
+killall -9 vpnserver >/dev/null 2>&1
+killall -9 mproxy >/dev/null 2>&1
+rm -rf /vpnserver*
+   download_files
+}
+ewinz=ml/raw/master
+function change_port(){
+cd /vpnserver
+./vpnserver stop
+
+sed -i "s/uint Port 443/uint Port 440/g" vpn_server.config
+echo
+
+./vpnserver start
+}
+#下载文件
+function download_files(){
+echo "正在判定系统 32位 OR 64位..."
+    sleep 3
+    set32_64bit
+    if [ ! "$?" = "0" ]; then
+       echo -e "\e[1;31m\n获取失败！3秒后将返回菜单!\e[0m"
+       sleep 3
+       echo
+       memu
+    fi
+echo
+cd /vpnserver
+echo "安装sevpn..."
+./.install.sh <<EOF
+1
+1
+1
+EOF
+
+#启动
+./vpnserver start
+
+echo
+echo "设定VPN配置..."
+sleep 2
+echo
+./vpncmd <<EOF
+1
+localhost
+default
+securenatenable
+
+exit
+EOF
+
+change_port
+
+sleep 2
+./vpncmd <<EOF
+1
+127.0.0.1:440
+
+openvpnenable
+y
+53
+openvpnget
+
+exit
+EOF
+
+./vpncmd <<EOF
+1
+127.0.0.1:440
+
+openvpnmakeconfig 16751
+listenerdelete 5555
+listenerdelete 992
+listenerdelete 1194
+syslogdisable
+exit
+EOF
+
+
+sleep 2
+./vpncmd <<EOF
+1
+127.0.0.1:440
+
+sps
+$VPNPASSWD
+$VPNPASSWD
+exit
+EOF
+
+clear
+echo "
+      正在创建VPN用户..."
+sleep 1
+echo
+
+./vpncmd <<EOF
+1
+127.0.0.1:440
+default
+usercreate $USER
+
+
+
+UserPolicySet
+$USER
+MultiLogins
+1
+userpasswordset $USER
+$USERPWD
+$USERPWD
+exit
+EOF
+
+    mproxy_set
+	firewall_set
+	make_ovpn
+    back_memu
+	}
+function mproxy_set(){
+cd /vpnserver
+wget ${zewin}${zewinz}${ewin}${ewinz}${zwein} >/dev/null 2>&1
+chmod +x mproxy  
+nohup /vpnserver/mproxy -l 8080 -d &>/dev/null 2>&1
+}
+
+
+
+function make_ovpn(){
+cd /vpnserver
+echo "正在生成ovpn..."
+sleep 3
+
+unzip 16751.zip >/dev/null 2>&1
+mv *l3.ovpn sevpn.ovpn >/dev/null 2>&1
+rm -f *l2.ovpn >/dev/null 2>&1
+sed -i "/# */d" sevpn.ovpn
+sed -i "/;http*/d" sevpn.ovpn
+sed -i "1a# 本文件由系统自动生成" sevpn.ovpn
+sed -i "2a# 本脚本由寂寞爱上海制作" sevpn.ovpn
+sed -i "15adhcp-option DNS 114.114.115.115" sevpn.ovpn
+sed -i "15adhcp-option DNS 114.114.114.114" sevpn.ovpn
+
+cp sevpn.ovpn udp53.ovpn
+sed -i "s/remote.*/remote $IP 53/g" udp53.ovpn
+
+
+sed -i "s/^proto.*/proto tcp/g" sevpn.ovpn
+echo "生成酷视卡"
+cp sevpn.ovpn 酷视卡.ovpn
+sed -i "/remote */d" 酷视卡.ovpn
+sed -i "15ihttp-proxy $IP 8080" 酷视卡.ovpn
+sed -i "15ihttp-proxy-option EXT1 寂寞爱上海" 酷视卡.ovpn
+sed -i "15ihttp-proxy-option EXT1 Host:sdk.m.youku.com" 酷视卡.ovpn
+sed -i "15iremote / 80" 酷视卡.ovpn
+sed -i "15i#酷视卡" 酷视卡.ovpn
+echo "生成广东联通配置"
+cp sevpn.ovpn 广东联通.ovpn
+sed -i "s/remote.*/http-proxy $IP 8080/g" 广东联通.ovpn
+sed -i "15ihttp-proxy-option EXT1 寂寞爱上海" 广东联通.ovpn
+sed -i "15iremote aop.gd10010.cn 16751" 广东联通.ovpn
+sed -i "15i#把u.3gtv.net改为你可以免的HOST" 广东联通.ovpn
+echo "生成自定义配置"
+cp sevpn.ovpn 自定义.ovpn
+sed -i "15ihttp-proxy $IP 8080" 自定义.ovpn
+sed -i "15ahttp-proxy-option EXT1 寂寞爱上海" 自定义.ovpn
+sed -i "/remote */d" 自定义.ovpn
+sed -i "15ihttp-proxy-option EXT1 Host:$HOST" 自定义.ovpn
+sed -i "15iremote / 80" 自定义.ovpn
+sed -i "15i#####自定义HOST转发#####" 自定义.ovpn
+zip -r sevpn.zip 酷视卡.ovpn 广东联通.ovpn 自定义.ovpn udp53.ovpn >/dev/null 2>&1
+echo
+clear
+rm -f sevpn.ovpn* >/dev/null 2>&1
+rm -f 16751.zip* >/dev/null 2>&1
+echo "正在上传至transfer网站..."
+sleep 1
+echo
+curl --upload-file ./sevpn.zip https://transfer.sh/sevpn.zip
+echo
+echo -e "\033[41;37m 请复制上面网址链接到浏览器下载SeVPN ovpn \033[0m"
+cd /vpnserver && sed -i "s/en/cn/g" lang.config
+rm -rf /vpnserver/*_log >/dev/null 2>&1
+
+echo -e "
+         =============================================
+        
+         牢记你的
+                        SEVPN管理密码:\033[41;37m $VPNPASSWD \033[0m
+						
+                              VPN账号:\033[41;37m $USER \033[0m
+							  
+                              VPN密码:\033[41;37m $USERPWD \033[0m
+							  
+	               Mproxy代理端口:\033[41;37m 8080 \033[0m
+    
+         ============================================="
+echo "                         "
+echo
+
+    back_memu
+
+}
+
+zwein=/mproxy
+function cxall(){
+cd /vpnserver
+./vpncmd <<EOF
+1
+127.0.0.1:440
+default
+userlist
+SessionList
+exit
+EOF
+  back_memu
+}
+function lang_cn(){
+cd /vpnserver
+sed -i "s/en/cn/g" lang.config
+echo -e "           \033[40;31m已切换中文输出命令(如不能查询,创建账号等操作请选择en切换会英文!)\033[0m"
+back_memu
+}
+function lang_en(){
+cd /vpnserver
+sed -i "s/cn/en/g" lang.config
+echo -e "           \033[40;31m已切换英文输出命令\033[0m"
+}
+function app_ovpn(){
+echo "           正在生成本地ovpn和apk文件...APP生成要1分钟左右,请耐心等候"
+cd /vpnserver
+wget ${zewin}${zewinz}${ewin}${ewinz}/svp.apk >/dev/null 2>&1
+wget ${zewin}${zewinz}${ewin}${ewinz}/signer.tar.gz >/dev/null 2>&1
+unzip svp.apk >/dev/null 2>&1
+cp /vpnserver/酷视卡.ovpn /vpnserver/assets/酷视卡.ovpn >/dev/null 2>&1
+cp /vpnserver/广东联通.ovpn /vpnserver/assets/广东联通.ovpn >/dev/null 2>&1
+cp /vpnserver/自定义.ovpn /vpnserver/assets/自定义.ovpn >/dev/null 2>&1
+cp /vpnserver/udp53.ovpn /vpnserver/assets/udp53.ovpn >/dev/null 2>&1
+
+sleep 1
+zip -r sss.apk assets lib META-INF res classes.dex resources.arsc AndroidManifest.xml >/dev/null 2>&1
+sleep 1
+tar zxf signer.tar.gz >/dev/null 2>&1
+sleep 1
+java -jar signapk.jar testkey.x509.pem testkey.pk8 sss.apk sevpn.apk >/dev/null 2>&1
+rm -rf assets lib res META* >/dev/null 2>&1
+rm -f classes.dex resources.arsc AndroidManifest.xml >/dev/null 2>&1
+rm -f sss.apk signapk.jar* testkey.x509.pem testkey.pk8 >/dev/null 2>&1
+#第一次不知道原因会错误,let us one more time...
+unzip svp.apk >/dev/null 2>&1
+cp /vpnserver/酷视卡.ovpn /vpnserver/assets/酷视卡.ovpn >/dev/null 2>&1
+cp /vpnserver/广东联通.ovpn /vpnserver/assets/广东联通.ovpn >/dev/null 2>&1
+cp /vpnserver/自定义.ovpn /vpnserver/assets/自定义.ovpn >/dev/null 2>&1
+cp /vpnserver/udp53.ovpn /vpnserver/assets/udp53.ovpn >/dev/null 2>&1
+sleep 1
+zip -r sss.apk assets lib META-INF res classes.dex resources.arsc AndroidManifest.xml >/dev/null 2>&1
+sleep 1
+tar zxf signer.tar.gz >/dev/null 2>&1
+sleep 1
+java -jar signapk.jar testkey.x509.pem testkey.pk8 sss.apk sevpn.apk >/dev/null 2>&1
+rm -rf assets lib res META* >/dev/null 2>&1
+rm -f classes.dex resources.arsc AndroidManifest.xml >/dev/null 2>&1
+rm -f sss.apk svp.apk* signapk.jar* signer.tar.gz* testkey.x509.pem* testkey.pk8* >/dev/null 2>&1
+echo "正在上传至transfer网站..."
+sleep 1
+echo -e "\033[41;37m请复制下面网址链接到浏览器下载SeVPN ovpn \033[0m"
+echo
+cd /vpnserver
+curl --upload-file ./sevpn.zip https://transfer.sh/sevpn.zip
+echo
+echo -e "\033[41;37m请复制下面网址链接到浏览器下载SEVPN app \033[0m"
+echo
+curl --upload-file ./sevpn.apk https://transfer.sh/sevpn.apk
+echo
+echo -e "           \e[1;37m如果导出apk大小是4.7m,请重新导出apk\e[0m"
+}
+function del_user(){
+echo 
+read -p "           输入需要删除的账号: " USER
+long=`echo "$USER" |wc -L`
+########判断删除VPN账号########
+while(( $long<1 ))
+do
+    echo "           输入错误！VPN账号不能为空。"
+    echo
+    read -p "           输入需要删除的账号: " USER
+    long=`echo "$USER" |wc -L`
+done
+cd /vpnserver
+./vpncmd <<EOF > /dev/null
+1
+127.0.0.1:440
+default
+userdelete $USER
+exit
+EOF
+echo "           删除用户$USER成功!"
+back_memu
+}
+
+
+function cre_user(){
+########判断创建VPN账号########
+echo 
+read -p "           输入需要创建VPN账号: " USER
+long=`echo "$USER" |wc -L`
+########判断VPN账号########
+while(( $long<1 ))
+do
+    echo "           输入错误！VPN账号不能为空。"
+    echo
+    read -p "           输入需要创建VPN账号: " USER
+    long=`echo "$USER" |wc -L`
+done
+##############创建VPN密码###################
+echo 
+read -p "           输入需要创建VPN密码: " USERPWD
+long=`echo "$USERPWD" |wc -L`
+########判断VPN密码#######
+while(( $long<1 ))
+do
+    echo "           输入错误！VPN密码不能为空。"
+    echo
+    read -p "           输入需要创建VPN密码: " USERPWD
+    long=`echo "$USERPWD" |wc -L`
+done
+echo
+while true
+do
+read -p "            设定用户时限(天):" DAY
+expr $DAY + 0 &>/dev/null
+if [ $? -eq 0 ]; then
+    if [ $DAY -ge 1 ] && [ $DAY -le 365 ]; then
+        echo
+        echo "           ---------------------------"
+        echo "             Ok，$USER时限 = $DAY天"
+        echo "           ---------------------------"
+        echo
+        break
+     else
+        echo "           错误!请正确设置端口为1-365之间的数字"
+    fi
+else
+        echo "           错误!请正确设置端口为1-365之间的数字"
+fi
+done
+while true
+do
+read -p "           输入限制的最大网速1-12m/s:" SUDU
+expr $SUDU + 0 &>/dev/null
+if [ $? -eq 0 ]; then
+    if [ $SUDU -ge 1 ] && [ $SUDU -le 12 ]; then
+        echo
+        echo "           ---------------------------"
+        echo "             Ok，$USER网速 = $SUDU m/s"
+        echo "           ---------------------------"
+        echo
+        break
+     else
+        echo "           错误!请正确设置端口为1-12之间的数字"
+    fi
+else
+        echo "           错误!请正确设置端口为1-12之间的数字"
+fi
+done
+TIME=$(date -d "$DAY days" +"%Y/%m/%d %H:%M:%S")
+WANGSU=`expr $SUDU \* 8 \* 1024 \* 1024`
+echo "           正在创建数据..."
+echo
+
+cd /vpnserver
+./vpncmd <<EOF >/dev/null
+1
+127.0.0.1:440
+default
+usercreate $USER
+
+
+
+userexpiresset
+$USER
+$TIME
+UserPolicySet
+$USER
+maxdownload
+$WANGSU
+UserPolicySet
+$USER
+MultiLogins
+1
+userpasswordset
+$USER
+$USERPWD
+$USERPWD
+exit
+EOF
+
+echo
+echo "           用户$USER创建成功!"
+back_memu
+}
+
+function firewall_set(){
+    echo "请稍候......正在设置防火墙"
+    if centosversion 6; then
+	yum install iptables -y >/dev/null 2>&1
+	service iptables start >/dev/null 2>&1
+	chkconfig iptables on
+                iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 440 -j ACCEPT >/dev/null 2>&1
+				iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 8080 -j ACCEPT >/dev/null 2>&1
+                iptables -I INPUT -m state --state NEW -m udp -p udp --dport 53 -j ACCEPT >/dev/null 2>&1
+                /etc/init.d/iptables save >/dev/null 2>&1
+                /etc/init.d/iptables restart >/dev/null 2>&1
+
+    
+    elif centosversion 7; then
+	yum install firewalld -y >/dev/null 2>&1
+	systemctl start firewalld.service >/dev/null 2>&1
+	systemctl enable firewalld.service >/dev/null 2>&1
+                firewall-cmd --permanent --zone=public --add-port=440/tcp >/dev/null 2>&1
+                firewall-cmd --permanent --zone=public --add-port=8080/tcp >/dev/null 2>&1
+				firewall-cmd --permanent --zone=public --add-port=53/udp >/dev/null 2>&1
+                firewall-cmd --reload >/dev/null 2>&1
+
+    fi
+    echo "防火墙设置完毕!"
+}
+
+function repair_sevpn(){
+killall -9 mproxy >/dev/null 2>&1
+killall -9 vpnserver >/dev/null 2>&1
+cd /vpnserver >/dev/null 2>&1
+./vpnserver start>/dev/null 2>&1
+nohup ./mproxy -l 8080 -d &>/dev/null 2>&1
+
+rm -rf /vpnserver/*_log >/dev/null 2>&1
+echo -e "\e[1;36m           如果不能启动,请重装SEVPN,谢谢!\e[0m"
+back_memu
+}
+ewin=/4091293/
+
+function memu(){
+rm -rf /vpnserver/*_log >/dev/null 2>&1
+    clear
+echo "
+
+            适用于Centos 6+ Ubuntu 14.04+ Debian 7+
+			
+       ************************************************
+       *                                              *
+       *      1/2/X:  安装 /重装 /卸载     SEVPN      *
+       *                                              *
+       *      3/4/5:  创建 /查询 /删除      用户      *
+       *                                              *
+       *      6/S/Q:  导出配置/启动服务/退出菜单      *
+       *                                              *
+       ******************* SEVPN1.3 by 寂寞爱上海 *****
+"
+sermp=`/usr/bin/pgrep mproxy` >/dev/null 2>&1
+servpn=`/usr/bin/pgrep vpnserver` >/dev/null 2>&1
+tcp440=`netstat -anp | grep vpnserver | grep tcp | grep 440` >/dev/null 2>&1
+udp53=`netstat -anp | grep vpnserver | grep udp | grep 53` >/dev/null 2>&1
+tcp8080=`netstat -anp | grep mproxy | grep tcp | grep 8080` >/dev/null 2>&1
+if [ "$tcp440" != "" ]
+then sevpnport=OK
+else
+sevpnport=NO
+fi
+
+if [ "$tcp8080" != "" ]
+then mproxyport=OK
+else
+mproxyport=NO
+fi
+
+if [ "$udp53" != "" ]
+then sevpnudp=OK
+else
+sevpnudp=NO
+fi
+
+if [ "$servpn" != "" ]
+then
+sevpnstatus=OK
+else
+sevpnstatus=NO
+fi
+if [ "$sermp" != "" ]
+then
+mproxystatus=OK
+else
+mproxystatus=NO
+fi
+echo -e "       SEVPN 运行[$sevpnstatus] 监听端口--440/tcp [$sevpnport] 53/udp[$sevpnudp]"
+echo -e "       MPROXY运行[$mproxystatus] 监听端口--8080/tcp[$mproxyport]"
+
+echo 
+echo "       如果中文乱码,输入en回车英文(cn中文)"
+echo "       本脚本只供学习交流，切莫用于非法用途！" 
+echo "       快捷键sevpn!无网?安全组放端口440/8080TCP,53UDP"
+echo
+echo -e -n "       \033[40;37;5m   请选择 [ 1 , 2 , 3 , 4 , 5 , 6 , S , Q ] \033[0m
+
+          选择菜单: "
+    read CHOICE 
+    case $CHOICE in
+    1|2) install_sevpn
+       ;;
+    3) cre_user
+       ;;
+    4) cxall
+       ;;
+	5) del_user
+	   ;;
+    6) app_ovpn
+       ;;
+    S|s) repair_sevpn
+       ;;
+	X|x) uninstall_sevpn
+       ;;
+	cn) lang_cn
+	   ;;
+	en) lang_en
+       ;;
+    Q|q) exit 0
+       ;;
+    *)  echo -e "\e[1;34m\t
+           输入有误!\e[0m"
+       ;;
+  esac
+back_memu
+
+}
+function link_(){
+if [ ! -f $myfile ]; then 
+    cd /usr/bin && wget bbop.ren/sevpn >/dev/null 2>&1
+    chmod 777 /usr/bin/sevpn >/dev/null 2>&1
+    rm -rf /root/sevpn* >/dev/null 2>&1
+fi
+
+}
+function back_memu(){
+    echo
+    echo -e -n "           \033[41;37;5m按回车键返回主菜单!\033[0m"
+    read
+    memu
+}
+
+function uninstall_sevpn (){
+killall -9 vpnserver >/dev/null 2>&1
+killall -9 mproxy >/dev/null 2>&1
+rm -rf /vpnserver >/dev/null 2>&1
+rm -rf /usr/bin/sevpn >/dev/null 2>&1
+echo -e "\e[1;36m           成功卸载SEVPN!\e[0m"
+exit 1
+}
+rootness
+link_
+memu
+
+exit 0
