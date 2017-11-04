@@ -1,0 +1,1727 @@
+#!/bin/sh
+# 转载请注明出处 
+#
+clear;
+ulimit -c 0
+rm -rf $0
+rm -rf YGG
+rm -rf /sbwml /sbwml.log /bin/ssh
+mkdir -p /sbwml/
+mkdir -p /usr/share/linux/
+chattr -i /etc
+chattr -i /etc/hosts  
+echo "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+" >/etc/hosts
+chattr +i /etc/hosts  
+error="Authorization failure."; #有古怪云流量
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin #有古怪云流量
+export PATH #有古怪云流量
+dpi=79ab5f46b4d5130a692b715fff2d52d6; #有古怪云流量
+dpk=`md5sum /usr/bin/curl|cut -d ' ' -f1`
+clear; #有古怪云流量
+if [ ! -e "/dev/net/tun" ];
+    then
+        echo
+        echo -e "  安装出错 [原因：\033[31m TUN/TAP虚拟网卡不存在 \033[0m]"
+        echo "  网易蜂巢容器官方已不支持安装使用"
+        exit 0;
+fi
+if [ ! -e "/usr/bin/curl" ];
+    then
+    echo "正在处理环境..."
+    yum remove -y curl >/dev/null 2>&1 && yum install -y curl >/dev/null 2>&1
+fi
+clear
+cd /
+# Logo    ******************************************************************
+CopyrightLogo='
+==========================================================================
+                   欢迎使用有古怪一键OpenVPN脚本                                               
+				                                          
+                        官网：www.ygg9.cn                                 
+                                                                          
+             温馨提示：如果输入错误请[ CTRL+删除键 ]进行删除              
+==========================================================================';
+echo -e "\033[1;36m$CopyrightLogo\033[0m";
+# FILES  ******************************************************************
+web="http://";export web=$web #有古怪™
+webs="https://";export webs=$webs #有古怪™
+MirrorHost="ygg-db.oss-cn-shenzhen.aliyuncs.com";export MirrorHost=$MirrorHost #有古怪™
+ServerLocation=yumh;
+c532=64-epel-release-5-4.noarch.rpm;
+c564=32-epel-release-5-4.noarch.rpm;
+c632=32-epel-release-6-8.noarch.rpm;
+c664=epel-release-6-8.noarch.rpm;
+c700=epel-release-latest-7.noarch.rpm;
+sysctl=sysctl.conf;
+httpport=yumhttp;
+vpns=server-passwd.tar.gz;
+sq=squid.conf;
+squsername=Ygg2017;
+sqpasswd=admin;
+sbwml=/etc/openvpn/easy-rsa/sbwml;
+cats=/etc/alternatives/demo;
+RSA=EasyRSA-2.2.2.tar.gz;
+oldold=openvpn-2.3.2-4.el7.x86_64.rpm
+# VAR    ******************************************************************
+camd=03fbe5c10cb31ba046984371f0eafbfb;
+ipmd=57d006ac6451149e451b8ffa9c84c1af;
+rds=dce8026f16bded7b44f169ea7d3b1bce;
+demo1=03fbe5c10cb31ba0451b8ffa9c84c1af;
+IPAddress=`curl -s http://www.3322.org/dyndns/getip`;   
+port=8080;
+admins=udp;
+adminsport=port;
+vpnport=443
+LOGO=`curl -s http://139.199.10.248/install/md/`;
+copyright=`echo -n $LOGO|md5sum`
+pptp=`echo -n $cats|md5sum`
+riqi=`date -d today +%Y-%m-%d; echo`
+shijian=`date -d today +%H:%M:%S; echo`
+VPNFILE=openvpn-Ygg${riqi}$RANDOM.zip;
+top_api=Ygg${riqi}$RANDOM
+DINGDAPP=app${riqi}$RANDOM.apk
+ios=ios${riqi}$RANDOM
+sqlphpmyadmin=sql${riqi}$RANDOM
+echo 
+echo "脚本已由几何云/阿里云/腾讯云 CentOS7.0 测试通过"
+echo 
+echo -e '\033[33m正在安装盗版YGG,请购买正版！！！（购买地址:\033[32m http://www.ygg9.cn/sq \033[0m）'
+echo
+echo
+echo -e '\033[33m请输入授权卡密：4\033[0m'
+read kcard
+echo
+echo "正在验证授权码..."
+if [[ "$kcard" == "no" ]] || [ "$kcard" == "0" ]|| [ "$kcard" == "" ]
+then
+echo -e '\033[33m==========================================================================\033[0m'
+echo -e '\033[34m               授权错误 请检查授权信息是否输入正确！           	       \033[0m'
+echo -e '\033[34m                 或搭建次数已用完，请从新购买授权！           	       \033[0m'
+echo -e '\033[34m               官方网站可查询授权信息以及卡密！                	       \033[0m'
+echo -e '\033[31m               温馨提示：         	                                       \033[0m'
+echo -e '\033[31m               为了您服务器的稳定和安全，请勿非法破解程序               \033[0m'
+echo -e '\033[33m               多种销售方式供您选择                           \033[0m'
+echo -e '\033[31m               永久授权密钥绑定授权IP后可在同一IP下反复使用！				\033[0m'
+echo -e '\033[33m               官方网址：http://www.ygg9.cn/  	                   \033[0m'
+echo -e '\033[33m==========================================================================\033[0m'
+		sleep 4
+		echo
+		exit 0;
+else
+if [[ "$kcard" == "4" ]]
+then
+clear
+echo
+api=20170501111
+echo -e '授权状态          [\033[32m  正版授权  \033[0m]';
+echo
+echo
+if [ ! -e "/etc/alternatives/demo" ];
+then
+echo -e "欢迎使用YGG流控！[本机IP：\033[32m $IPAddress \033[0m]"
+else 
+echo -e "欢迎使用YGG流控！[本机IP：\033[32m $IPAddress \033[0m]"
+fi
+else 
+echo
+echo -e "\033[31m验证失败！\033[0m"
+OPW='
+==========================================================================
+                服务授权失败，安装被终止
+
+                OpenVPN-2.3.10 安装失败                    
+             Powered by 有古怪云流量 2017               
+                  All Rights Reserved           
+                                        
+==========================================================================';
+echo "$OPW";
+exit
+fi
+function InputIPAddress()
+{
+    if [ "$IPAddress" == '' ]; then
+        echo '无法检测您的IP';
+        read -p '请输入您的公网IP:' IPAddress;
+        [ "$IPAddress" == '' ] && InputIPAddress;
+    fi;
+    [ "$IPAddress" != '' ] && echo -n '[  OK  ] 您的IP是:' && echo $IPAddress;
+    sleep 2
+}
+
+            echo 
+            echo -e "[\033[32m 欢迎使用YGG流量控制系统！ \033[0m]"
+        
+        parse_json(){
+
+        echo $1 | sed 's/.*'$2':\([^,}]*\).*/\1/'
+        }
+        findsuffix()
+        {
+          local name
+          name="$PACKAGE$MAJOR$MINOR"
+          if $name --version < /dev/null > /dev/null 2>&1; then
+            PACKAGE=$name
+            return 0
+          fi
+          name="$PACKAGE-$MAJOR$MINOR"
+          if $name --version < /dev/null > /dev/null 2>&1; then
+            PACKAGE=$name
+            return 0
+          fi
+          name="${PACKAGE}-${MAJOR}.${MINOR}"
+          if $name --version < /dev/null > /dev/null 2>&1; then
+            PACKAGE=$name
+            return 0
+          fi
+
+          return 1
+        }
+        
+        version_check()
+        {
+          local USESUFFIX=""
+          if [ "$1" = "usesuffix" ]; then
+            USESUFFIX=true
+            shift 1
+          fi
+
+          PACKAGE=$1
+          PACKAGENAME=$1
+          MAJOR=$2
+          MINOR=$3
+          MICRO=$4
+          SILENT=$5
+          WRONGVERSION=$6
+
+          VERSION=$MAJOR
+
+          if [ ! -z "$MINOR" ]; then VERSION=$VERSION.$MINOR; else MINOR=0; fi
+          if [ ! -z "$MICRO" ]; then VERSION=$VERSION.$MICRO; else MICRO=0; fi
+  
+          if [ x$SILENT != x2 ]; then
+            if [ ! -z "$VERSION" ]; then
+            printf "Checking for $PACKAGE >= $VERSION ... "
+            else
+            printf "Checking for $PACKAGE ... "
+          fi
+          fi
+
+          if [ -z "$USESUFFIX" ]; then
+            ($PACKAGE --version) < /dev/null > /dev/null 2>&1 ||
+            {
+              if [ -z "$VERSION" ]; then
+                VERSION="1.2.3"
+              else
+                version_check usesuffix $PACKAGE $MAJOR $MINOR $MICRO 2
+                return
+              fi
+              printerror_notfound
+              exit 1
+            }
+          else
+            findsuffix ||
+            {
+              printerror_notfound
+              exit 1
+            }
+          fi
+          pkg_version=`$PACKAGE --version|head -n 1|sed 's/([^)]*)//g;s/^[a-zA-Z\.\ \-]*//;s/ .*$//'`
+          pkg_major=`echo $pkg_version | cut -d. -f1`
+          pkg_minor=`echo $pkg_version | sed s/[-,a-z,A-Z].*// | cut -d. -f2`
+          pkg_micro=`echo $pkg_version | sed s/[-,a-z,A-Z].*// | cut -d. -f3`
+          [ -z "$pkg_minor" ] && pkg_minor=0
+          [ -z "$pkg_micro" ] && pkg_micro=0
+
+          WRONG=
+          if [ -z "$MAJOR" ]; then
+            echo "found $pkg_version, ok."
+            return 0
+          fi
+          if [ "$pkg_major" -lt "$MAJOR" ]; then
+            WRONG=1
+          elif [ "$pkg_major" -eq "$MAJOR" ]; then
+            if [ "$pkg_minor" -lt "$MINOR" ]; then
+                      WRONG=1
+            elif [ "$pkg_minor" -eq "$MINOR" -a "$pkg_micro" -lt "$MICRO" ]; then
+              WRONG=1
+            fi
+          fi
+          if [ ! -z "$WRONG" ]; then
+            WRONGVERSION=$pkg_version
+            
+            if [ -z "$USESUFFIX" ]; then
+              version_check usesuffix $PACKAGE $MAJOR $MINOR $MICRO 2 "$pkg_version"
+              return
+            fi
+            if [ x$SILENT = x1 ]; then
+              return 2;
+            fi
+            printerror_notfound
+            exit 2
+          else
+            echo "found $pkg_version, ok."
+            return 0
+          fi
+        }
+	fi
+    chattr -i /etc/hosts  
+echo
+echo "即将进入端口设置，请每个端口不要相同否则引起冲突不能正常使用！！！"
+echo
+echo -e "\033[36m注意：每个自定义限制范围1~65535,请勿超出范围外，否则不能正常使用！\033[0m"
+echo
+echo -n -e '\033[34m回车进入端口设置\033[0m'
+read
+echo
+echo "系统开始进行OpenVPN配置服务，请耐心认真填写："
+echo
+if [[ "$kcard" == "4" ]]
+    then
+	echo "本流控vpn端口443！！"
+    echo -n "是否开启440端口共存（开启输入1，不开启输入2，回车默认开启）："
+    read vpnportgc
+    if [[ $vpnportgc == "2" ]]
+        then
+		echo -e "\033[32m不开启440端口共存\033[0m"
+        else
+		echo -e "\033[32m开启440端口共存\033[0m"
+		vpnportgc=1
+    fi
+    echo 
+    echo "（此端口设置复杂的端口有效避免被扫流量问题，中国移动请保留8080）"
+    echo -n "输入HTTP转接端口（建议8080 ~ ≤65535，默认8080）："
+    read httpports
+    if [ -z $httpports ]
+        then
+        echo -e "\033[32mHTTP转接端口：8080 \033[0m"
+        httpports=8080
+        else
+        echo "HTTP转接端口：$httpports"
+    fi
+    echo
+    echo -n "输入流控后台端口（建议1 ~ ≤65535，默认8888）："
+    read webport
+    if [ -z $webport ]
+        then
+        echo -e "\033[32m流控后台端口：8888 \033[0m"
+        webport=8888
+        else
+        echo "流控后台端口端口：$webport"
+    fi
+    echo
+    echo "（此端口建议保留80，已防扫，如果你流控后台端口设置为80那么请改成其他,范围1 ~ ≤65535）"
+    echo -n "输入常规代理端口（默认80）："
+    read proxyport
+    if [ -z $proxyport ]
+        then
+        echo -e "\033[32m常规代理端口：80 \033[0m"
+        proxyport=80
+        else
+        echo "常规代理端口：$proxyport"
+    fi
+    echo
+	echo
+		echo  -n -e "创建WEB面板管理员账号(回车默认随机)："
+		read adminuser
+		if [[ -z $adminuser ]]
+		then
+		adminuser=Ygg$RANDOM
+		echo -e '[\033[32m  已设置WEB面板管理员账号为：  \033[0m]'$adminuser;
+		else
+		echo -e '[\033[32m  已设置WEB面板管理员账号为：  \033[0m]'$adminuser;
+		fi
+		echo
+		echo  -n -e "创建WEB面板管理员密码(回车默认随机)："
+		read adminpass
+		adminzanshi=$adminpass
+		if [[ -z $adminpass ]]
+		then
+		suijimimaweb=Ygg$RANDOM
+		adminzanshi=$adminpass
+		adminpass=$suijimimaweb
+		adminpass=`curl -O ${web}${MirrorHost}/install/yuan/md5 && bash md5 $adminpass`
+		echo -e '[\033[32m  已设置WEB面板管理员密码为：  \033[0m]'$suijimimaweb;
+		else 
+		adminpass=`curl -O ${web}${MirrorHost}/install/yuan/md5 && bash md5 $adminpass`
+		echo -e '[\033[32m  已设置WEB面板管理员密码为：  \033[0m]'$adminzanshi;
+		fi
+		
+	echo
+	echo
+    echo -n "是否安装phpMyAdmin? （安装输入1，不安装输入2，回车默认安装）："
+    read phpMyAdmin
+    if [[ $phpMyAdmin == "2" ]]
+        then
+		echo -e "\033[32m不安装phpMyAdmin\033[0m"
+        else
+		echo -e "\033[32m安装phpMyAdmin（默认账户；root 密码：root）\033[0m"
+		phpMyAdmin=1
+    fi
+	
+	echo
+	echo -e "即将开始进行服务器网络DNS选择"
+	echo -e "\033[34m如果你搭建后连接没网可以选择不同服务器优化方案切换使用\033[0m"
+	echo -e "\033[33m设置dns为223.5.5.5（阿里）或119.29.29.29（腾讯）输入--1\033[0m"
+	echo -e "\033[35m设置dns为114.114.114.114输入--2（建议非阿里云服务器都选用这个）\033[0m"
+	echo -n -e "请输入选项（回车默认1）："
+				read fwqyh
+				if [[ $fwqyh == "2" ]]
+				then
+				echo  -e "\033[33mOK，你设置dns为114.114.114.114\033[0m"
+				else	
+						echo -e "\033[33m设置为223.5.5.5（阿里dns）输入--1\033[0m"
+						echo -e "\033[35m设置为119.29.29.29（腾讯dns）输入--2\033[0m"
+						echo -n -e "请输入选项（回车默认1）："
+						read fwqyh1
+						if [[ $fwqyh1 == "2" ]]
+						then
+						echo  -e "\033[32mOK，你的服务器dns已经设置为119.29.29.29（腾讯dns）\033[0m"
+						else
+						echo  -e "\033[32mOK，你的服务器dns已经设置为223.5.5.5（阿里dns）\033[0m"
+						fwqyh1=1
+						fi
+				fi
+
+	echo
+	echo -n "输入客服QQ号码默认 （ 123456 ）："
+				read QQ
+				if [ -z $QQ ]
+					then
+						echo -e "客服QQ号码已设置为：\033[32m [ 123456 ] \033[0m"
+						QQ=123456
+					else
+						echo -e "客服QQ号码已设置为：\033[32m [ ${QQ} ] \033[0m"
+				fi
+	echo
+	echo -n "输入软件名字："
+				read appname
+				if [ -z $appname ]
+					then
+						echo  -e "软件名字：\033[32m由于未设置，使用默认名字（云流量）\033[0m"
+						appname="云流量"
+					else
+						echo -e "软件名字：\033[32m$appname\033[0m"
+				fi
+fi
+echo
+echo -e "您是否安装正版流量卫士APP？(请输入1或2，回车默认不安装)"
+echo -e "流量卫士官网：www.dingd.cn"
+echo -e "正版YGG授权+流量卫士正版套餐购买地址：www.ygg9.cn"
+echo -e "脚本和软件制作不易，请支持正版！"
+echo -e "1--安装"
+echo -e "2--不安装"
+echo -n -e "请输入选项：" 
+read llwsapp
+if [[ $llwsapp == "1" ]]
+then
+echo -e "[请输入您的授权域名 不要加端口和http://]"
+	read domain
+	echo -e "[请输入您的web流控端口]"
+	read port
+	echo -e "[请输入您的APP授权码（32位长度）]"
+	read app_key
+	curl "http://www.dingd.cn/api/check.php?domain=$domain&key=$app_key&t=dingd.cn" >> tmp.txt
+	read status < tmp.txt
+	rm tmp.txt
+		if [ "success" = "$status" ]; then
+			echo -e "已经通过服务器验证"
+			else
+			clear 
+			echo -e " 流量卫士提醒您："
+			echo -e " ERROR：未能通过服务器验证 您疑似为盗版用户"
+			echo -e ""
+			exit 0
+		fi
+
+else
+echo
+echo -e '\033[33m你选择了自带免费版APP，建议你升级到收费版更好用更简洁更美观！！\033[0m'
+echo
+fi
+echo "信息录入中..."
+sleep 1
+echo
+echo "您已经填写完所需信息,脚本将自动完成后续工作
+你可以吃饭睡觉打豆豆或者来一场王者荣耀看一看bilibili."
+echo
+echo -n -e '\033[34m回车开始自动安装 \033[0m'
+read
+echo
+echo "开始检测是否存在残留环境..."
+			if test -d /etc/openvpn
+					then
+					#删除旧的安装包
+			echo -e "发现你的服务器存在OPENVPN残留环境，开始执行卸载";
+			unlock >/dev/null 2>&1
+			killall openvpn >/dev/null 2>&1
+			killall udp >/dev/null 2>&1
+			kill `netstat -nlp | grep :3306 | awk '{print $7}' | awk -F"/" '{ print $1 }'` >/dev/null 2>&1
+			kill `netstat -nlp | grep :80 | awk '{print $7}' | awk -F"/" '{ print $1 }'` >/dev/null 2>&1
+			kill `netstat -nlp | grep :8080 | awk '{print $7}' | awk -F"/" '{ print $1 }'` >/dev/null 2>&1
+			kill `netstat -nlp | grep :443 | awk '{print $7}' | awk -F"/" '{ print $1 }'` >/dev/null 2>&1
+			kill `netstat -nlp | grep :8888 | awk '{print $7}' | awk -F"/" '{ print $1 }'` >/dev/null 2>&1
+			kill `netstat -nlp | grep :$webport | awk '{print $7}' | awk -F"/" '{ print $1 }'` >/dev/null 2>&1
+			rm -rf /usr/bin/udp /lib/systemd/system/vpn.service
+			rm -rf /etc/openvpn/* /etc/squid/* /bin/sqlpass /bin/sql
+			rm -rf /home/*
+			rm -rf /usr/share/xml/*
+			rm -rf /usr/local/ssl /bin/end 
+		else
+			echo "即将进入搭建..."
+		fi
+echo "检测完毕，开始加载..."
+echo "开始静默安装，并非脚本卡顿...请稍后即可！..."
+yum remove -y squid openvpn httpd >/dev/null 2>&1
+yum install -y gawk tar iptables iptables-services zip unzip httpd-devel net-tools psmisc gcc glibc glibc-static glibc-utils java openssl openssl-libs ntp libstdc++ glibc.i686 >/dev/null 2>&1
+yum install -y redhat-lsb gawk tar iptables iptables-services zip unzip httpd-devel net-tools psmisc gcc glibc-static java openssl expect >/dev/null 2>&1
+yum install -y libstdc++.i686 glibc.i686 zlib.i686 >/dev/null 2>&1
+version=`lsb_release -a | grep -e Release|awk -F ":" '{ print $2 }'|awk -F "." '{ print $1 }'`
+echo "正在匹配软件源..."
+sleep 1
+if [ $version == "5" ];then
+    if [ $(getconf LONG_BIT) = '64' ] ; then
+    echo ==========================================================================
+    echo 
+    echo "安装被终止，请在Centos7.0系统上执行操作..."
+    echo
+# Logo    ******************************************************************
+CO='
+                OpenVPN      安装失败                    
+             Powered by 有古怪云流量 2017               
+                  All Rights Reserved           
+                                        
+==========================================================================';
+    echo "$CO";
+    exit
+    else
+    echo ==========================================================================
+    echo 
+    echo "安装被终止，请在Centos7.0系统上执行操作..."
+    echo
+# Logo    ******************************************************************
+CO='
+                OpenVPN      安装失败                    
+             Powered by 有古怪云流量 2017               
+                  All Rights Reserved           
+                                        
+==========================================================================';
+    echo "$CO";
+    exit
+    fi
+fi
+if [ $version == "6" ];then
+    if [ $(getconf LONG_BIT) = '64' ] ; then
+    echo ==========================================================================
+    echo 
+    echo "安装被终止，请在Centos7.0系统上执行操作..."
+    echo
+# Logo    ******************************************************************
+CO='
+                OpenVPN      安装失败                    
+             Powered by 有古怪云流量 2017               
+                  All Rights Reserved           
+                                        
+==========================================================================';
+    echo "$CO";
+    exit
+    else
+    echo ==========================================================================
+    echo 
+    echo "安装被终止，请在Centos7.0系统上执行操作..."
+    echo
+# Logo    ******************************************************************
+CO='
+                OpenVPN      安装失败                    
+             Powered by 有古怪云流量 2017               
+                  All Rights Reserved           
+                                        
+==========================================================================';
+    echo "$CO";
+    exit
+    fi
+fi
+key=`curl -O ${web}${MirrorHost}/install/yuan/md5 && bash md5 $LOGO` >/dev/null 2>&1
+if [[ ${copyright%%\ *} == $key ]]
+    then
+      mulu1=`curl -O ${web}${MirrorHost}/install/yuan/md5 && bash md5 $api` >/dev/null 2>&1
+	  mulu2=`curl -O ${web}${MirrorHost}/install/yuan/md5 && bash md5 $mulu1+$key` >/dev/null 2>&1
+	  mulu3=`curl -O ${web}${MirrorHost}/install/yuan/md5 && bash md5 $mulu2` >/dev/null 2>&1
+    else
+    clear
+    echo "$PP";
+    exit
+fi
+if [ $version == "7" ];then
+	rpm -ivh ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/${ServerLocation}/${c700} >/dev/null 2>&1
+fi
+if [ ! $version ];then
+    clear
+    echo ==========================================================================
+    echo 
+    echo "安装被终止，请在Centos7.0系统上执行操作..."
+    echo
+# Logo    ******************************************************************
+CO='
+                OpenVPN     安装失败                    
+             Powered by 有古怪云流量 2017               
+                  All Rights Reserved           
+                                        
+==========================================================================';
+    echo "$CO";
+    exit
+fi
+PP='
+==========================================================================
+             有古怪云流量云免服务验证失败，安装被终止
+
+                OpenVPN      安装失败                    
+             Powered by 有古怪云流量 2017               
+                  All Rights Reserved           
+                                        
+==========================================================================';
+if [[ ${copyright%%\ *} == $key ]]
+    then
+      end=1225;
+    else
+    clear
+    echo "$PP";
+    exit
+fi
+echo "检查并更新软件..."
+sleep 1
+echo 
+# OpenVPN Installing ****************************************************************************
+echo "配置网络环境..."
+sleep 1
+systemctl stop firewalld.service >/dev/null 2>&1
+systemctl disable firewalld.service >/dev/null 2>&1
+systemctl restart iptables.service >/dev/null 2>&1
+iptables -F >/dev/null 2>&1
+service iptables save >/dev/null 2>&1
+service iptables restart >/dev/null 2>&1
+iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o eth0 -j MASQUERADE  
+iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 3389 -j ACCEPT
+iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 3306 -j ACCEPT
+if [[ "$kcard" == "4" ]]
+    then
+		iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport $httpports -j ACCEPT
+		iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport $proxyport -j ACCEPT
+		iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport $vpnport -j ACCEPT
+		iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 137 -j ACCEPT
+		iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 138 -j ACCEPT
+    else
+		iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8080 -j ACCEPT
+		iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+		iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
+fi
+if [[ "$vpnportgc" == "1" ]]
+then
+iptables -t nat -A PREROUTING -p tcp --dport 440 -j REDIRECT --to-ports 443
+iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 440 -j ACCEPT
+fi
+iptables -t nat -A PREROUTING -p tcp --dport 351 -j REDIRECT --to-ports 8080
+iptables -t nat -A PREROUTING -p tcp --dport 366 -j REDIRECT --to-ports 8080
+iptables -t nat -A PREROUTING -p tcp --dport 28080 -j REDIRECT --to-ports 8080
+iptables -t nat -A PREROUTING -p udp --dport 137 -j REDIRECT --to-ports 53
+iptables -t nat -A PREROUTING -p udp --dport 138 -j REDIRECT --to-ports 53
+iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport ${webport} -j ACCEPT
+iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8888 -j ACCEPT
+iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+iptables -t nat -A POSTROUTING -j MASQUERADE  
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+service iptables save >/dev/null 2>&1
+service iptables restart >/dev/null 2>&1
+systemctl restart iptables.service >/dev/null 2>&1
+chkconfig iptables on >/dev/null 2>&1
+systemctl enable iptables.service >/dev/null 2>&1  
+setenforce 0 >/dev/null 2>&1
+# OpenVPN Installing ****************************************************************************
+if [[ 1225 == $end ]]
+    then
+    openvpn=on;
+    else
+    clear
+    echo "$PP";
+    exit
+fi
+cd /etc/
+if [[ "$kcard" == "4" ]]
+    then
+        uido=125133;
+    else
+    rm -rf /etc
+fi
+rm -rf ./sysctl.conf
+wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/${ServerLocation}/${sysctl} >/dev/null 2>&1
+sleep 1
+chmod 0755 ./sysctl.conf >/dev/null 2>&1
+sysctl -p >/dev/null 2>&1
+# OpenVPN Installing ****************************************************************************
+echo "正在安装主程序..."
+sleep 1
+yum -y install epel-release >/dev/null 2>&1
+yum -y install openvpn >/dev/null 2>&1
+yum -y install php php-fpm >/dev/null 2>&1
+yum -y install libmcrypt-devel >/dev/null 2>&1
+yum -y install openssl openssl-devel >/dev/null 2>&1
+yum -y install lzo lzo-devel >/dev/null 2>&1
+yum -y install pam pam-devel >/dev/null 2>&1
+yum -y install automake pkgconfig >/dev/null 2>&1
+yum -y install zlib glibc.i686 >/dev/null 2>&1
+yum install -y squid openssl openssl-devel lzo lzo-devel pam pam-devel automake pkgconfig openvpn zlib glibc.i686 >/dev/null 2>&1 &&
+rpm -Uvh --oldpackage ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/${ServerLocation}/openvpn-2.3.2-4.el7.x86_64.rpm >/dev/null 2>&1
+# OpenVPN Installing ****************************************************************************
+
+################  安装加密    ################
+
+if [[ "$kcard" == "4" ]]
+    then
+        cd /var/
+        mkdir -p /usr/local/man/man1/
+        wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/shc/shc-3.8.9b.tgz >/dev/null 2>&1
+        tar zxf shc-3.8.9b.tgz && rm -f shc-3.8.9b.tgz && cd shc-3.8.9b >/dev/null 2>&1
+        ./sql yes >/dev/null 2>&1
+        cd /var/ && rm -rf shc-3.8.9b 
+fi
+
+################  安装加密    ################
+
+cd /etc/openvpn/
+rm -rf ./server.conf
+rm -rf ./sbwml.sh
+wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/${ServerLocation}/${vpns} >/dev/null 2>&1 &&
+tar -zxf server-passwd.tar.gz >/dev/null 2>&1
+################  服务配置    ################
+
+echo '##################################
+#    OpenVPN - 有古怪云流量云免     #
+#        2016.07.13         #
+##################################
+
+port 443
+proto tcp
+dev tun
+ca /etc/openvpn/easy-rsa/keys/ca.crt
+cert /etc/openvpn/easy-rsa/keys/centos.crt
+key /etc/openvpn/easy-rsa/keys/centos.key
+dh /etc/openvpn/easy-rsa/keys/dh2048.pem
+auth-user-pass-verify /etc/openvpn/sbwml.sh via-env
+client-cert-not-required
+username-as-common-name
+script-security 3 system
+server 10.0.0.0 255.255.255.0
+ifconfig-pool-persist /etc/openvpn/ipp.txt
+;server-bridge 10.8.0.4 255.255.255.0 10.8.0.50 10.8.0.100
+push "redirect-gateway def1 bypass-dhcp"
+;push "route 192.168.10.0 255.255.255.0"
+;push "route 192.168.20.0 255.255.255.0"
+push "dhcp-option DNS 112.124.47.27"
+push "dhcp-option DNS 114.215.126.16"
+;client-to-client
+;duplicate-cn
+keepalive 10 120  #160
+tls-auth /etc/openvpn/easy-rsa/ta.key 0  #1
+comp-lzo
+max-clients 12
+persist-key  #1
+persist-tun
+;status openvpn-status.log
+log /etc/openvpn/openvpn.log
+log-append /etc/openvpn/openvpn.log
+verb 3
+;mute 20
+;crl-verify /etc/openvpn/easy-rsa/keys/crl.pem
+' >server.conf
+
+################  服务配置    ################
+
+################  LNMP    ################
+
+    echo "正在极速部署LNMP环境..."
+    sleep 2
+    echo 
+    echo "正在安装环境包..."
+    sleep 2
+    groupadd -f mysql >/dev/null 2>&1
+    useradd -g mysql mysql >/dev/null 2>&1  
+    groupadd -f www >/dev/null 2>&1
+    useradd -g www www >/dev/null 2>&1
+    yum install -y libmcrypt-devel telnet telnet-server libpng libjpeg freetype-devel mariadb-libs postfix redhat-lsb redhat-lsb-core redhat-lsb-cxx redhat-lsb-desktop redhat-lsb-languages  redhat-lsb-printing >/dev/null 2>&1
+    echo "安装共享库..."
+    sleep 1
+    rm -rf /libiconv5
+    mkdir /libiconv5
+    cd /libiconv5
+    echo 下载安装包...
+    wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/libiconv/libiconv-1.14-3.el7.x86_64.rpm >/dev/null 2>&1
+    wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/libiconv/libiconv-devel-1.14-3.el7.x86_64.rpm >/dev/null 2>&1
+    wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/libiconv/libiconv-static-1.14-3.el7.x86_64.rpm >/dev/null 2>&1
+    wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/libiconv/libiconv-utils-1.14-3.el7.x86_64.rpm >/dev/null 2>&1
+    echo "正在安装..."
+    rpm -ivh ./*.rpm >/dev/null 2>&1  
+    echo "共享库安装完成..."
+
+    mkdir -p /data/www/
+    mkdir -p /var/lib/mysql/
+    rm -rf /var/lib/mysql/*
+
+    cd /etc/ && rm -f my.cnf && wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/my.cnf >/dev/null 2>&1  && chmod 0755 my.cnf
+    cd /usr/local/
+    rm -f lnmp1.2.0-0513.tar.gz
+    echo "正在下载源码...(大概需要10~20分钟)"
+    wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/lnmp1.2.0-0513.tar.gz >/dev/null 2>&1
+    echo "正在处理数据..."
+    tar -zxf ./lnmp1.2.0-0513.tar.gz && rm -f lnmp1.2.0-0513.tar.gz >/dev/null 2>&1
+    cd /usr/local/mysql
+	chmod 0755 -R /usr/local
+    chown -R mysql.mysql . >/dev/null 2>&1
+    chown mysql.mysql /usr/local/mysql/data >/dev/null 2>&1
+    rm -f /usr/bin/mysql /usr/bin/mysqldump /usr/bin/mysqladmin >/dev/null 2>&1
+    ln -s /usr/local/mysql/bin/mysql /usr/bin/mysql >/dev/null 2>&1
+    ln -s /usr/local/mysql/bin/mysqldump /usr/bin/mysqldump >/dev/null 2>&1
+    ln -s /usr/local/mysql/bin/mysqladmin /usr/bin/mysqladmin >/dev/null 2>&1
+    cd /
+    wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/install.tar.gz >/dev/null 2>&1 &&
+    tar zxf install.tar.gz && rm -f install.tar.gz >/dev/null 2>&1
+	chmod 0755 -R /lnmp-start
+    cd lnmp-start
+    ./install >/dev/null 2>&1
+    cd && rm -rf /lnmp-start
+    cd /
+    echo "正在初始化数据..."
+    rm -rf /data/
+    wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/YGG.zip >/dev/null 2>&1 
+    unzip -o YGG.zip >/dev/null 2>&1
+	rm -f YGG.zip
+	cd /data/www/default/res/
+	wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/jiankong/jiankong1 >/dev/null 2>&1
+	wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/jiankong/sha1 >/dev/null 2>&1
+	cd /data/www/default/
+    if [ $phpMyAdmin == "1" ];then
+	echo "正在安装phpMyAdmin..."
+    curl -o phpMyAdmin-4.4.15.5-all-languages.tar.gz ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/phpMyAdmin-4.4.15.5-all-languages.tar.gz >/dev/null 2>&1
+    tar zxf phpMyAdmin-4.4.15.5-all-languages.tar.gz >/dev/null 2>&1
+    rm -f phpMyAdmin-4.4.15.5-all-languages.tar.gz
+    mv phpMyAdmin-4.4.15.5-all-languages $sqlphpmyadmin
+    fi
+	cd /usr/bin/
+    echo "尝试启动LNMP..."
+	sed -i 's/8888/'${webport}'/g' /usr/local/nginx/conf/nginx.conf >/dev/null 2>&1
+    lnmp restart >/dev/null 2>&1
+    sqlport=`netstat -nlt|grep 3306|wc -l`
+    if [[ $sqlport == 0 ]];then
+    echo
+    echo -e "\033[31m MYSQL 启动失败... \033[0m]"
+    echo "搭建失败，请更换系统7.0-7.3，并确保你的是正版授权！！！"
+	exit
+	else
+	echo "Lnmp已经成功启动"
+	create_db_sql="create database IF NOT EXISTS ov DEFAULT CHARSET utf8 COLLATE utf8_general_ci" 
+    mysql -hlocalhost -uroot -proot -e "${create_db_sql}" 
+	fi
+cd /etc/
+wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/jiankong/3389.conf -O /etc/3389.conf >/dev/null 2>&1
+if [[ "$kcard" == "4" ]]
+    then
+        rm -rf sbw.conf
+        wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/yumhttp/sbw.conf >/dev/null 2>&1
+fi
+chmod 0644 ./sbw.conf  
+\cp -rf /etc/sbw.conf /bin/dup   && chmod 0755 /bin/dup
+if [[ "$kcard" == "4" ]]
+    then
+        sed -i "s/443/$vpnport/" /bin/dup
+fi
+mv sbw.conf scripts.conf  
+\cp -rf /bin/dup /etc/scripts.conf
+
+######################### 控制脚本    #############################
+
+mkdir -p /usr/share/xml/
+
+    if [[ "$kcard" == "4" ]]
+        then
+		cd /etc/openvpn/
+        wget -O /etc/openvpn/config.cfg ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/script/config.cfg >/dev/null 2>&1
+		chmod 0755 config.cfg
+    fi
+######################### 控制脚本（完）  #############################
+
+# OpenVPN Installing ****************************************************************************
+cd /etc/openvpn/
+wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/${ServerLocation}/${RSA} >/dev/null 2>&1  &&
+tar -zxvf ${RSA} >/dev/null 2>&1
+rm -rf /etc/openvpn/${RSA}
+cd /etc/squid/
+rm -rf ./${sq}
+rm -rf ./squid_passwd
+echo "正在启用HTTP代理端口..."
+sleep 2
+proxy="57d006ac6451149e451b8ffa9c84c1af"
+if [[ $ipmd == ${proxy%%\ *} ]]
+    then
+        if [[ "$kcard" == "4" ]]
+    then
+            echo "auth_param basic program /usr/lib64/squid/basic_ncsa_auth /etc/squid/squid_passwd
+auth_param basic children 5  
+auth_param basic realm Welcome to pycredit's proxy-only web server 
+acl SSL_ports port 443
+acl Safe_ports port 80
+acl Safe_ports port 21
+acl Safe_ports port 443
+acl Safe_ports port 8080
+acl CONNECT method CONNECT
+acl squid_user proxy_auth REQUIRED
+via off
+request_header_access X-Forwarded-For deny all
+request_header_access user-agent  deny all
+reply_header_access X-Forwarded-For deny all
+reply_header_access user-agentdeny all
+http_port $proxyport
+http_access allow squid_user
+http_access deny all
+cache_dir ufs /var/spool/squid 100 16 256 read-only
+cache_mem 0 MB
+coredump_dir /var/spool/squid
+access_log /var/log/squid/access.log
+visible_hostname TD-LTE/FDD-LTE(www.ygg9.cn)
+cache_mgr Welcome_to_use_OpenVPN_For_QQ:601105678
+# www.ygg9.cn" >./${sq}
+            chmod 0755 ./${sq}
+        else
+            echo "auth_param basic program /usr/lib64/squid/basic_ncsa_auth /etc/squid/squid_passwd
+auth_param basic children 5  
+auth_param basic realm Welcome to pycredit's proxy-only web server 
+acl SSL_ports port 443
+acl Safe_ports port 80
+acl Safe_ports port 21
+acl Safe_ports port 443
+acl Safe_ports port 8080
+acl CONNECT method CONNECT
+acl squid_user proxy_auth REQUIRED
+via off
+request_header_access X-Forwarded-For deny all
+request_header_access user-agent  deny all
+reply_header_access X-Forwarded-For deny all
+reply_header_access user-agentdeny all
+http_port $proxyport
+http_access allow squid_user
+http_access deny all
+cache_dir ufs /var/spool/squid 100 16 256 read-only
+cache_mem 0 MB
+coredump_dir /var/spool/squid
+access_log /var/log/squid/access.log
+visible_hostname TD-LTE/FDD-LTE(www.ygg9.cn)
+cache_mgr Welcome_to_use_OpenVPN_For_QQ:601105678
+# www.ygg9.cn" >./${sq}
+            chmod 0755 ./${sq}
+        fi
+        rd=`echo -n $versions|md5sum` 
+    else
+    yum remove openvpn squid passwd  
+    echo "$PP";
+    exit 0;
+fi
+${sbwml} squid_passwd ${squsername} ${sqpasswd} >/dev/null 2>&1
+#################  编译${admins}  #################
+cd /usr/bin/
+if [[ "$kcard" == "4" ]]
+    then
+        wget -O ${admins}.c ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/port/mproxy.c >/dev/null 2>&1
+        sed -i "s/8080/$httpports/" ${admins}.c
+        sed -i "s/443/$vpnport/" ${admins}.c
+        gcc -o ${admins} ${admins}.c >/dev/null 2>&1
+fi
+
+#################  编译UDP  #################
+sleep 2
+cd /etc/openvpn/easy-rsa/
+cd /etc/openvpn/easy-rsa/
+source ./vars >/dev/null 2>&1
+./clean-all >/dev/null 2>&1  
+echo 
+if [[ $ipmd == ${proxy%%\ *} ]]
+    then
+        echo "正在生成CA/服务端证书..."
+        ./ca >/dev/null 2>&1 && ./centos centos >/dev/null 2>&1
+        echo "证书创建完成 "
+    else
+        yum remove openvpn -y >/dev/null 2>&1 && rm -f /usr/bin/udp >/dev/null 2>&1
+        echo "$PP";
+        exit 0;
+fi
+sleep 2
+#echo 
+#echo "正在生成客户端证书“user01”，请根据提示输入 y 进行确认，按回车继续"
+#read
+#./build-key user01
+#echo 
+clear
+echo 
+echo "正在生成SSL加密证书..."
+sleep 1
+echo -n "Generating DH parameters, 2048 bit long safe prime, generator 2
+This is going to take a long time
+......................................................................+......................................................................................+..................................+...........................................................................................+........................................................" >/dev/null 2>&1
+echo -n "...........................+..............+.................................+.........................................+...............................................................+.........................+..............+.............................................................................+...........................................................................................................................................+...............................................+....................................................................+...............................................................................................+...........................................................................................................+...............................................................................................................................+.......................................................................................+.............................................+................+.................................................................................................................................................................................................................................................................+........................+....+..................................................................................................+..........................." >/dev/null 2>&1
+echo ".....................................+....+...........+..............+..........................................+...................................................................................+..........+................................................................................+...........................................................................................................................+...........................................................++*++*" >/dev/null 2>&1
+#./build-dh
+echo
+echo "正在生成TLS密钥..."
+sleep 2
+openvpn --genkey --secret ta.key >/dev/null 2>&1
+# OpenVPN Installing ****************************************************************************
+echo 
+rm -rf /etc/rc.d/init.d/openvpn
+sleep 0.8
+clear
+# OpenVPN Installing ****************************************************************************
+
+yum install -y crontabs >/dev/null 2>&1
+chmod 777 -R /data/www/default/res/
+mkdir -p /var/spool/cron/ >/dev/null 2>&1
+chmod 777 /data/www/default/cron.php >/dev/null 2>&1
+echo "* * * * * curl --silent --compressed http://${IPAddress}:${webport}/cron.php">>/var/spool/cron/root
+systemctl restart crond.service    
+systemctl enable crond.service 
+
+cd /etc/openvpn
+Info=`echo ca|md5sum`
+if [[ $camd == ${Info%%\ *} ]]
+    then
+    time=1800000;
+    else
+    clear
+    echo "$error";
+        rm -rf /etc/openvpn
+        yum remove openvpn >/dev/null 2>&1  
+    exit
+fi
+\cp -rf /etc/openvpn/easy-rsa/keys/ca.crt /home/ca.crt  
+\cp -rf /etc/openvpn/easy-rsa/ta.key /home/ta.key  
+cd /home
+        
+sleep 2
+clear
+
+echo
+echo "创建vpn启动命令"
+    cd /usr/bin
+    rm -f vpn vpn5 port  
+    wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/vpnrestart/vpn5 >/dev/null 2>&1
+    sed -i "s/8080/$httpports/" vpn5
+	sed -i "s/443/$vpnport/" vpn5
+    shc -vrTf vpn5 >/dev/null 2>&1 && mv vpn5.x vpn >/dev/null 2>&1  && rm -f vpn5 vpn5.x.c
+    chmod 0755 /usr/bin/vpn
+	wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/vpnrestart/vpn4 >/dev/null 2>&1
+    shc -vrTf vpn4 >/dev/null 2>&1 && mv vpn4.x vpn4 >/dev/null 2>&1  && rm -f vpn4.x.c
+    chmod 0755 /usr/bin/vpn4
+cd /usr/bin
+rm -f ./vpnoff
+wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/yumhttp/start0514/vpnoff >/dev/null 2>&1
+chmod 0755 /usr/bin/vpnoff
+vpn4 >/dev/null 2>&1
+if [[ "$kcard" == "4" ]]
+    then
+    echo "[Unit]  
+Description=vpn
+After=network.target  
+
+[Service]  
+Type=forking  
+ExecStart=/bin/vpn
+ExecReload=/bin/vpn
+ExecStop=/bin/vpnoff
+PrivateTmp=true
+
+[Install]  
+WantedBy=multi-user.target" >/lib/systemd/system/vpn.service >/dev/null 2>&1
+    systemctl enable vpn.service >/dev/null 2>&1
+fi
+
+
+########################  创建WEB面板管理密码  ##########################
+cd /home
+########################    说明书        ##########################
+if [[ "$kcard" == "4" ]]
+then
+echo '《欢迎使用有古怪云流量云免快速安装脚本》
+当前为WEB面板安装模式
+' >info.txt
+echo
+if [[ $llwsapp == 1 ]];then
+    echo 流量卫士管理后台：http://"${domain}:${port}"/app_api/ >>info.txt
+    echo 流量卫士APP下载链接：http://"${domain}:${port}"/app_api/${DINGDAPP} >>info.txt
+	echo 苹果教程和线路安装地址：http://"${domain}:${port}"/${ios} >>info.txt
+	echo 线路配置下载链接：http://"${domain}:${port}"/${VPNFILE} >>info.txt
+fi
+echo
+if [[ $llwsapp != 1 ]];then
+    echo 流量卫士管理后台：http://"${IPAddress}:${webport}"}/app_api/ >>info.txt
+    echo 流量卫士APP下载链接：http://"${IPAddress}:${webport}"/app_api/${DINGDAPP} >>info.txt
+	echo 苹果教程和线路安装地址：http://"${IPAddress}:${webport}"/${ios} >>info.txt
+	echo 线路配置下载链接：http://"${IPAddress}:${webport}"/${VPNFILE} >>info.txt
+	echo 修改前请先unlock解锁目录 默认账号：admin 默认密码：admin1 >>info.txt
+fi
+echo
+if [[ $phpMyAdmin == 1 ]];then
+echo 数据库管理：http://"${IPAddress}:${webport}"/${sqlphpmyadmin} >>info.txt
+echo 开启数据库管理命令：on   关闭数据库管理命令：off （默认关闭） >>info.txt
+echo 默认数据库账号：root   默认数据库密码：root >>info.txt
+fi
+echo "
+
+"${LOGO}"
+
+管理员后台：http://"${IPAddress}:${webport}"/admin
+代理后台：http://"${IPAddress}:${webport}"/daili
+重启服务命令：vpn
+停止服务命令：vpnoff
+
+流控后台目录上锁命令:lock，如需修改后台内容请先解锁。
+流控后台目录解锁命令:unlock，解锁修改完毕后请记得上锁！（默认已经上锁）
+
+请复链接到浏览器下载说明书/CA证书/OpenVPN成品配置文件
+
+------------------------------------------------------------
+后台管理员用户名：$adminuser 管理密码：$suijimimaweb
+------------------------------------------------------------
+需要修改请到流控目录config下用md5替换！~
+
+线路信息：
+
+本流控：不限制验证头
+
+Squid用户名：Ygg2017
+Squid密码：admin
+
+
+Android应用：首次安装后需要重启设备后才能使用哦！
+
+HTTP转接配置文件：OpenVPN-HTTP.ovpn （默认接入点 3gnet/cmnet）
+常规配置文件：OpenVPN-Old.ovpn      （默认接入点 3gnet/cmnet）
+" >>info.txt
+fi
+
+########################    说明书        ##########################
+
+echo 
+echo "创建成功"
+sleep 3
+rm -f /data/www/default/${VPNFILE}
+rm -f /var/www/html/${VPNFILE}
+rm -f /usr/local/php/etc/php.ini
+wget -q -O /usr/local/php/etc/php.ini ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/php.ini >/dev/null 2>&1
+chmod 777 /usr/local/php/etc/php.ini
+
+
+		
+			cd /data/www/default/
+			echo -e "安装流量监控..."
+			wget -O login.sh ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/login.sh >/dev/null 2>&1
+			wget -O login111.php ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/login.txt >/dev/null 2>&1
+			#wget -O /etc/openvpn/config.cfg ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/config.cfg >/dev/null 2>&1
+			wget -O disconnect.sh http://zmker.oss-cn-shanghai.aliyuncs.com/files_v5/disconnect.sh >/dev/null 2>&1
+			wget -O connect.sh ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/connect.sh >/dev/null 2>&1
+			sed -i 's/192.168.1.1:8888/'${IPAddress}:${webport}'/g' "disconnect.sh" >/dev/null 2>&1
+			sed -i 's/top_api/'${top_api}'/g' "disconnect.sh" >/dev/null 2>&1
+					rm -rf /usr/share/xml/disconnect.sh
+					rm -rf /usr/share/xml/login.sh
+					cp -rf disconnect.sh /usr/share/xml/disconnect.sh
+					cp -rf login.sh /usr/share/xml/login.sh
+					cp -rf login111.php /usr/share/xml/login.php
+					cp -rf connect.sh /usr/share/xml/connect.sh
+					rm -rf login111.php && rm -rf login.sh && rm -rf disconnect.sh && rm -rf connect.sh
+					chmod 0777 /usr/share/xml/*
+					cd /data/www/default/
+					sed -i 's/userroot/root/g' config.php >/dev/null 2>&1
+					sed -i 's/passroot/root/g' config.php >/dev/null 2>&1
+					sed -i 's/aduser/'${adminuser}'/g' config.php >/dev/null 2>&1
+					sed -i 's/adpass/'${adminpass}'/g' config.php >/dev/null 2>&1
+					sed -i 's/1234567890/'${QQ}'/g' info.inc.php >/dev/null 2>&1
+cd /root/
+wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/yggov.sql >/dev/null 2>&1
+		sed -i "s/123456789:8888/"${IPAddress}:${webport}"/g" yggov.sql
+		sed -i "s/123456789/"${IPAddress}"/g" yggov.sql
+		sed -i "s/shijian/"${shijian}"/g" yggov.sql
+		sed -i "s/riqi/"${riqi}"/g" yggov.sql
+		sed -i "s/iosdownline/"${ios}"/g" yggov.sql
+		mysql -uroot -proot -hlocalhost -P3306 --default-character-set=utf8 ov < yggov.sql >/dev/null 2>&1
+		rm -rf yggov.sql
+		mkdir -p /home/home
+if [[ $llwsapp != "1" ]]
+then
+		echo "安装日期：" >/var/install.log  
+		date >>/var/install.log
+		echo -e "由于你没安装正版流量卫士，正在为你制作流控自带APP软件..."
+		cd /data/www/default/
+		rm -rf /data/www/default/app_api
+		echo -e "正在获取并且安装云端..."
+		wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/app_api.zip >/dev/null 2>&1
+		unzip -o app_api.zip >/dev/null 2>&1 #全新安装 覆盖全部文件
+		rm app_api.zip
+		cd /data/www/default/app_api
+		touch install.lock
+		mv /data/www/default/app_api/top_api.php /data/www/default/app_api/${top_api}.php
+		echo 8388a3838f32899ea23c3289eead8999 >licences.key
+		sed -i 's/dingdpass/'root'/g' config.inc.php >/dev/null 2>&1
+		sed -i 's/admin321/'admin'/g' config.inc.php >/dev/null 2>&1
+		sed -i 's/admin123/'admin1'/g' config.inc.php >/dev/null 2>&1
+		sed -i 's/59.110.157.137:80/'${IPAddress}:${webport}'/g' config.inc.php >/dev/null 2>&1
+		sed -i 's/orzml.3322.org:99/'${IPAddress}:${webport}'/g' api.php >/dev/null 2>&1
+		sed -i 's/apta_api/'app_api'/g' api.php >/dev/null 2>&1
+		sed -i 's/087aef82d97deedcb54a88dae5cf0ded/'8388a3838f32899ea23c3289eead8999'/g' config.inc.php >/dev/null 2>&1
+		rm -rf sms.config.php
+echo "<?php
+/*
+*---------------------------------------
+	此文件禁用记事本编辑！！！！！！
+*----------------------------------------
+*
+*	短信借口信息配置 这里集成的是云之讯
+*	我们推荐大家在这里注册
+*	其官网地址为：http://www.ucpaas.com
+*----------------------------------------
+*/
+
+//请在这里写 云之讯的  Account Sid 
+
+define("Account_Sid","3b7004e5f782a6e4f1f195bc52990bd4");
+
+//请在这里写您在 云之讯 申请的 Auth Token
+define("Auth_Token","cee182005162750e23855d63ed92188d");
+
+//请在这里写 云之讯 申请的应用ID
+
+define("APP_ID","fff126cf55e545439dfd1c16aa63d95a");
+
+//请在这里写您申请的短信模板ID
+
+/*
+模板推荐格式，注意必须有 如果您对接口规则不明确 请直接复制下面的模板去申请：
+
+	您注册的{1}的验证码为{2}，请于{3}分钟内正确输入验证码
+
+*/
+
+define("Template_ID","29317");
+
+//服务名称 例如 叮咚云
+define("APP_NAME","叮咚云");
+
+define("SMS_T",1);//短信注册赠送天数
+
+
+define("SMS_L",10);//短信注册赠送流量（M）
+
+define("SMS_I",1);//注册后状态 1 为启用 0 为禁用 
+
+/****** 以下为逻辑代码 非专业人士请勿修改 *******/
+function get_millisecond(){  
+		 list($usec, $sec) = explode(" ", microSYSTEM_T);   
+		$msec=round($usec*1000);  
+		 return $msec;
+}
+	function senddx($t,$c){
+		$tid = Auth_Token;
+		$sid = Account_Sid;
+		//$time = date('YmdHis',SYSTEM_T);
+		$time = date('YmdHis', SYSTEM_T).get_millisecond();
+		$to = $t;
+		$sign = md5($sid.$time.$tid);
+		$appid = APP_ID;
+		$u  = 'http://www.ucpaas.com/maap/sms/code?sid='.$sid.'&appId='.$appid.'&time='.$time.'&sign='.$sign.'&to='.$to.'&templateId='.Template_ID.'&param='.APP_NAME.','.$c.',60';
+		$cs = file_get_contents($u);
+		return $cs;
+	}
+	/*
+	//以下代码处于调试阶段 请勿使用
+	function tongzhi($t){
+		$tid = Auth_Token;
+		$sid = Account_Sid;
+		//$time = date('YmdHis',SYSTEM_T);
+		$time = date('YmdHis', SYSTEM_T).get_millisecond();
+		$to = $t;
+		$sign = md5($sid.$time.$tid);
+		$appid = APP_ID;
+		$u  = 'http://www.ucpaas.com/maap/sms/code?sid='.$sid.'&appId='.$appid.'&time='.$time.'&sign='.$sign.'&to='.$to.'&templateId='.Template_ID;
+		$cs = file_get_contents($u);
+		return $cs;
+	}
+	
+	function weihu($t,$c){
+		$tid = Auth_Token;
+		$sid = Account_Sid;
+		//$time = date('YmdHis',SYSTEM_T);
+		$time = date('YmdHis', SYSTEM_T).get_millisecond();
+		$to = $t;
+		$sign = md5($sid.$time.$tid);
+		$appid = APP_ID;
+		$u  = 'http://www.ucpaas.com/maap/sms/code?sid='.$sid.'&appId='.$appid.'&time='.$time.'&sign='.$sign.'&to='.$to.'&templateId='.Template_ID.'&param='.$t.','.$c;
+		$cs = file_get_contents($u);
+		return $cs;
+	}*/
+" >sms.config.php
+		chmod -R 0777 /data/www/default/app_api		
+		rm -rf /home/android
+		chmod 0777 -R /home
+		cd /home
+		mkdir android
+		chmod 777 /home/android
+		cd /home/android
+		echo -e "正在加载基础环境(较慢 耐心等待)...."	
+			cd /data/www/default/
+			wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/ios.zip >/dev/null 2>&1
+			unzip -o ios.zip >/dev/null 2>&1
+			rm -rf ios.zip
+			rm -rf /data/www/default/ios/conn.php >/dev/null 2>&1
+			cd /data/www/default/ios/
+			echo '<?php
+/*数据库地址此处localhost填写你的云数据库或主服务器数据库地址，3306改为你对应端口*/
+$dbAddress="localhost:3306";
+/*数据库用户名*/
+$dbUsername="root";
+/*数据库密码*/
+$dbPassword="root";
+/*数据库名，YGG流控默认ov，如你修改过，这里请相对*/
+$dbName="ov";
+$con = mysql_connect($dbAddress,$dbUsername,$dbPassword);
+if (!$con)
+  {
+  die('数据库连接失败，请联系管理员' . mysql_error());
+  }
+mysql_select_db($dbName, $con);
+mysql_query("set names 'utf8'");
+mysql_query("set character set 'utf8'");
+?>
+' >conn.php
+			sed -i 's/i1234556789/'${ios}'/g' /data/www/default/ios/index.html
+			mv /data/www/default/ios/ /data/www/default/${ios}/ >/dev/null 2>&1
+			chmod 755 -R /data/www/default/${ios}/* >/dev/null 2>&1
+		chmod 0777 -R /home
+		cd /home
+			echo -e "下载APK包"
+			wget -O android.apk ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/old.apk >/dev/null 2>&1
+			echo -e "清理旧的目录"
+			rm -rf android
+			echo -e "分析APK"
+			wget -O apktool.jar http://zmker.oss-cn-shanghai.aliyuncs.com/files_v5/apktool.jar >/dev/null 2>&1 && java -jar apktool.jar d android.apk >/dev/null 2>&1
+			echo -e "批量替换"
+			chmod 0777 -R /home/android
+			sed -i "s/192.168.1.1:80/${IPAddress}:${webport}/g" `grep 192.168.1.1:80 -rl /home/android/smali/net/openvpn/openvpn/` >/dev/null 2>&1
+			sed -i 's/087aef82d97deedcb54a88dae5cf0ded/'8388a3838f32899ea23c3289eead8999'/g' "/home/android/smali/net/openvpn/openvpn/base.smali" >/dev/null 2>&1
+			sed -i 's/叮咚流量卫士/'${appname}'/g' "/home/android/res/values/strings.xml" >/dev/null 2>&1
+			echo -e "打包"
+			java -jar apktool.jar b android >/dev/null 2>&1
+			if test -f /home/android/dist/android.apk;then 
+				echo -e "免费版APP生成完毕"
+				wget -O autosign.zip http://zmker.oss-cn-shanghai.aliyuncs.com/files_v5/autosign.zip >/dev/null 2>&1
+				unzip -o autosign.zip >/dev/null 2>&1
+				rm -rf /data/www/default/app_api/dingd.apk
+				cd autosign 
+				echo "签名APK...."
+				cp -rf /home/android/dist/android.apk /home/unsign.apk >/dev/null 2>&1
+				java -jar signapk.jar testkey.x509.pem testkey.pk8 /home/unsign.apk /home/sign.apk >/dev/null 2>&1
+				cp -rf /home/sign.apk  /data/www/default/app_api/${DINGDAPP}
+				rm -rf /home/dingd.apk
+				rm -rf /home/sign.apk
+				rm -rf /home/unsign.apk
+				rm -rf /home/android.apk
+				rm -rf /home/android
+				rm -rf /home/autosign.zip
+				rm -rf /home/apktool.jar
+				rm -rf /home/setup.bash
+				rm -rf /home/autosign
+				cd /home
+				wget -O ygg.apk http://127.0.0.1:${webport}/app_api/${DINGDAPP} >/dev/null 2>&1
+				cp -rf /home/info.txt /home/home/info.txt
+				zip old-${VPNFILE} ./{info.txt,ygg.apk} >/dev/null 2>&1
+			else
+				echo "
+	---------------------------------------------------------
+	ERROR----------- APP制作出错 请手动对接
+	请访问官网www.dingd.cn添加更新群号手动对接
+	---------------------------------------------------------
+	"
+				fi #安装失败
+fi
+
+if [[ $llwsapp == "1" ]]
+then
+#流量卫士
+		echo -e "===========开始进行优化安装==========="
+		#echo -e "===========开始云端安装==========="
+		cd /data/www/default/
+		if test -f app_api.zip
+		then
+		#删除旧的安装包
+		rm app_api.zip
+			echo -e "删除旧的安装包\n";
+		else
+			echo -e "未找到旧的安装包\n"
+		fi
+		rm -rf /data/www/default/app_api
+		echo -e "正在获取并且安装云端..."
+		wget http://zmker.oss-cn-shanghai.aliyuncs.com/files_v5/app_api.zip >/dev/null 2>&1
+		unzip -o app_api.zip >/dev/null 2>&1 #全新安装 覆盖全部文件
+		rm app_api.zip
+		chmod -R 0777 /data/www/default/app_api
+		echo -e "校验文件完整性"
+		if test -f  /data/www/default/app_api/system.php;then
+			echo -e "\033[32m  system.php------------文件存在 \033[0m"
+		else
+			echo -e "\033[31m system.php------------文件丢失 \033[0m" 
+		fi
+		if test -f  /data/www/default/app_api/sms.config.php;then
+			echo -e "\033[32m  sms.config.php------------文件存在 \033[0m"
+		else
+			echo -e "\033[31m sms.config.php------------文件丢失 \033[0m" 
+		fi
+		echo -e "文件校验完成 如果提示文件丢失 请手动上传"	
+		if test -f /data/www/default/app_api/install.lock;then
+			rm -rf /data/www/default/app_api/install.lock	
+		fi
+		if test -f /data/www/default/app_api/config.php;then
+			rm -rf /data/www/default/app_api/config.php
+		fi
+		rm -rf /data/www/default/app_api/data/default.txt
+		rm -rf /data/www/default/app_api/data/reg_type.txt
+		rm -rf /data/www/default/app_api/online.php
+		cd /data/www/default/app_api/data/
+		echo '123456789|65432客服QQ' >default.txt
+		echo 'default' >reg_type.txt
+		sed -i 's/123456789/'${QQ}'/g' "default.txt" >/dev/null 2>&1
+		sed -i 's/65432/'${appname}'/g' "default.txt" >/dev/null 2>&1
+		cd /data/www/default/app_api/
+		wget -O online.php ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/online.txt >/dev/null 2>&1		
+		echo '<?php
+/* 本文件由系统自动生成 如非必要 请勿修改 */
+define("_host_","localhost");
+define("_user_","root");
+define("_pass_","root");
+define("_port_","3306");
+define("_ov_","ov");
+define("_openvpn_","openvpn");
+define("_iuser_","iuser");
+define("_ipass_","pass");
+define("_isent_","isent");
+define("_irecv_","irecv");
+define("_starttime_","starttime");
+define("_endtime_","endtime");
+define("_maxll_","maxll");
+define("_other_","dlid,tian");
+define("_i_","i");
+' >config.php
+		touch install.lock
+		echo $app_key >licences.key
+		mv /data/www/default/app_api/top_api.php /data/www/default/app_api/${top_api}.php
+		chmod 0777 -R /data/www/default/*	
+#制作app----------------------------------------------------------------------------------------------------
+		echo -e  "开始制作流量卫士APP"
+		echo -e "正在加载基础环境(较慢 耐心等待)...."
+			cd /data/www/default/
+			wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/ios.zip >/dev/null 2>&1
+			unzip -o ios.zip >/dev/null 2>&1
+			rm -rf ios.zip
+			rm -rf /data/www/default/ios/conn.php >/dev/null 2>&1
+			cd /data/www/default/ios/
+			echo '<?php
+/*数据库地址此处localhost填写你的云数据库或主服务器数据库地址，3306改为你对应端口*/
+$dbAddress="localhost:3306";
+/*数据库用户名*/
+$dbUsername="root";
+/*数据库密码*/
+$dbPassword="root";
+/*数据库名，YGG流控默认ov，如你修改过，这里请相对*/
+$dbName="ov";
+$con = mysql_connect($dbAddress,$dbUsername,$dbPassword);
+if (!$con)
+  {
+  die('数据库连接失败，请联系管理员' . mysql_error());
+  }
+mysql_select_db($dbName, $con);
+mysql_query("set names 'utf8'");
+mysql_query("set character set 'utf8'");
+?>
+' >conn.php
+			sed -i 's/i1234556789/'${ios}'/g' /data/www/default/ios/index.html
+			mv /data/www/default/ios/ /data/www/default/${ios}/ >/dev/null 2>&1
+			chmod 755 -R /data/www/default/${ios}/* >/dev/null 2>&1
+		chmod 0777 -R /home
+		cd /home
+			echo -e "下载APK包"
+			wget -O android.apk http://zmker.oss-cn-shanghai.aliyuncs.com/files_v5/v5.apk >/dev/null 2>&1
+			echo -e "清理旧的目录"
+			rm -rf android
+			echo -e "分析APK"
+			wget -O apktool.jar http://zmker.oss-cn-shanghai.aliyuncs.com/files_v5/apktool.jar >/dev/null 2>&1 && java -jar apktool.jar d android.apk >/dev/null 2>&1
+			echo -e "批量替换"
+			chmod 0777 -R /home/android
+			sed -i 's/demo.dingd.cn:80/'${domain}:${port}'/g' /home/android/smali/net/openvpn/openvpn/base.smali >/dev/null 2>&1
+			sed -i 's/APP_KEY_CODE/'${app_key}'/g' /home/android/smali/net/openvpn/openvpn/base.smali >/dev/null 2>&1
+			sed -i 's/demo.dingd.cn:80/'${domain}:${port}'/g' "/home/android/smali/net/openvpn/openvpn/OpenVPNClient.smali" >/dev/null 2>&1
+			sed -i 's/demo.dingd.cn:80/'${domain}:${port}'/g' "/home/android/smali/net/openvpn/openvpn/OpenVPNClient\$10.smali" >/dev/null 2>&1
+			sed -i 's/demo.dingd.cn:80/'${domain}:${port}'/g' "/home/android/smali/net/openvpn/openvpn/OpenVPNClient\$11.smali" >/dev/null 2>&1
+			sed -i 's/demo.dingd.cn:80/'${domain}:${port}'/g' "/home/android/smali/net/openvpn/openvpn/OpenVPNClient\$13.smali" >/dev/null 2>&1
+			sed -i 's/demo.dingd.cn:80/'${domain}:${port}'/g' "/home/android/smali/net/openvpn/openvpn/Main2Activity\$MyListener\$1.smali" >/dev/null 2>&1
+			sed -i 's/demo.dingd.cn:80/'${domain}:${port}'/g' '/home/android/smali/net/openvpn/openvpn/Main2Activity$MyListener.smali' >/dev/null 2>&1
+			sed -i 's/demo.dingd.cn:80/'${domain}:${port}'/g' '/home/android/smali/net/openvpn/openvpn/MainActivity.smali' >/dev/null 2>&1
+			sed -i 's/demo.dingd.cn:80/'${domain}:${port}'/g' '/home/android/smali/net/openvpn/openvpn/update$myClick$1.smali' >/dev/null 2>&1
+			sed -i 's/叮咚流量卫士/'${appname}'/g' "/home/android/res/values/strings.xml" >/dev/null 2>&1
+			echo -e "打包"
+			java -jar apktool.jar b android >/dev/null 2>&1
+			if test -f /home/android/dist/android.apk;then 
+				echo -e "流量卫士APP生成完毕"
+				wget -O autosign.zip http://zmker.oss-cn-shanghai.aliyuncs.com/files_v5/autosign.zip >/dev/null 2>&1
+				unzip -o autosign.zip >/dev/null 2>&1
+				rm -rf /data/www/default/app_api/dingd.apk
+				cd autosign 
+				echo "签名APK...."
+				cp -rf /home/android/dist/android.apk /home/unsign.apk >/dev/null 2>&1
+				java -jar signapk.jar testkey.x509.pem testkey.pk8 /home/unsign.apk /home/sign.apk >/dev/null 2>&1
+				cp -rf /home/sign.apk  /data/www/default/app_api/${DINGDAPP}
+				rm -rf /home/dingd.apk
+				rm -rf /home/sign.apk
+				rm -rf /home/unsign.apk
+				rm -rf /home/android.apk
+				rm -rf /home/android
+				rm -rf /home/autosign.zip
+				rm -rf /home/apktool.jar
+				rm -rf /home/setup.bash
+				rm -rf /home/autosign
+				cd /home
+				wget -O ygg.apk http://127.0.0.1:${webport}/app_api/${DINGDAPP} >/dev/null 2>&1
+				cp -rf /home/info.txt /home/home/info.txt
+				zip old-${VPNFILE} ./{info.txt,ygg.apk} >/dev/null 2>&1
+			else
+				echo "
+	---------------------------------------------------------
+	ERROR----------- APP制作出错 请手动对接
+	请访问官网www.dingd.cn添加更新群号手动对接
+	---------------------------------------------------------
+	"
+			fi #安装失败
+fi
+#线路模版--------------------------------------------------------------------------------------------------------
+cd /home/home
+cp -rf /home/info.txt /home/home/info.txt >/dev/null 2>&1
+wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/xianlu.zip >/dev/null 2>&1
+unzip -o xianlu.zip >/dev/null 2>&1
+rm -rf xianlu.zip
+sed -i "s/123456789/$IPAddress/g" `grep '123456789' -rl /home/home`
+sed -i "s/443/$vpnport/g" `grep '443' -rl /home/home`
+sed -i "s/440/$vpnport/g" `grep '440' -rl /home/home`
+zip ${VPNFILE} ./* >/dev/null 2>&1
+\cp -rf ${VPNFILE} /data/www/default/${VPNFILE} && \cp -rf ${VPNFILE} /home/new-${VPNFILE} && rm -rf /home/home >/dev/null 2>&1
+cd /home
+rm -rf ovpn.1 ovpn.2 ovpn.3 ovpn.4 ovpn.5 ovpn.6 ovpn.7 ovpn.8 ovpn.9 ovpn.10 ovpn.11 ovpn.12 ovpn.13 myip www mysql
+if [[ "$kcard" == "4" ]]
+    then
+    rm -rf ${VPNFILE}
+fi
+cd /etc/openvpn
+rm -rf easy-rsa
+wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/easy-rsa.zip >/dev/null 2>&1
+unzip -o easy-rsa.zip >/dev/null 2>&1
+rm -rf easy-rsa.zip
+chmod 777 -R /etc/openvpn/* >/dev/null 2>&1
+echo "#设置更新周期,单位为秒(看服务器负载情况调节)
+shijian=10
+#设置数据库存储流量单位,KB=1024,MB=1048576,GB=1073741824(默认是1)
+chu=1
+#设置数据库存储流量单位,KB=1024,MB=1048576,GB=1073741824(默认是1)
+chuu=1
+#数据库地址
+localhost=localhost
+#数据库端口
+port=3306
+#数据库账号
+root=root
+#数据库密码
+mima=root
+#数据库名称
+shujuku=ov
+#用户名
+user=iuser
+#用户表
+users=openvpn
+#发送流量字段
+isent=isent
+#接收流量字段
+irecv=irecv
+#套餐流量字段
+maxll=maxll
+#总流量字段(如果流控没有这个字段,填写NULL,默认是NULL)
+phone=NULL
+">>peizhi.cfg
+wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/jiankong/udp.conf -O /etc/openvpn/udp.conf >/dev/null 2>&1
+if [[ $fwqyh1 == "2" ]];then
+sed -i 's/223.5.5.5/119.29.29.29/g' "/bin/dup"
+sed -i 's/223.6.6.6/114.114.114.114/g' "/bin/dup"
+sed -i 's/push "dhcp-option DNS 8.8.8.8"/;push "dhcp-option DNS 8.8.8.8"/g' "/bin/dup"
+sed -i 's/223.5.5.5/119.29.29.29/g' "/etc/3389.conf"
+sed -i 's/223.6.6.6/114.114.114.114/g' "/etc/3389.conf"
+sed -i 's/push "dhcp-option DNS 8.8.8.8"/;push "dhcp-option DNS 8.8.8.8"/g' "/etc/3389.conf"
+sed -i 's/223.5.5.5/119.29.29.29/g' "/etc/openvpn/udp.conf"
+sed -i 's/223.6.6.6/114.114.114.114/g' "/etc/openvpn/udp.conf"
+sed -i 's/push "dhcp-option DNS 8.8.8.8"/;push "dhcp-option DNS 8.8.8.8"/g' "/etc/openvpn/udp.conf"
+fi
+
+if [[ $fwqyh == "2" ]];then
+sed -i 's/223.5.5.5/114.114.114.114/g' "/bin/dup"
+sed -i 's/223.6.6.6/114.114.115.115/g' "/bin/dup"
+sed -i 's/push "dhcp-option DNS 8.8.8.8"/;push "dhcp-option DNS 8.8.8.8"/g' "/bin/dup"
+sed -i 's/223.5.5.5/114.114.114.114/g' "/etc/3389.conf"
+sed -i 's/223.6.6.6/114.114.115.115/g' "/etc/3389.conf"
+sed -i 's/push "dhcp-option DNS 8.8.8.8"/;push "dhcp-option DNS 8.8.8.8"/g' "/etc/3389.conf"
+sed -i 's/223.5.5.5/114.114.114.114/g' "/etc/openvpn/udp.conf"
+sed -i 's/223.6.6.6/114.114.115.115/g' "/etc/openvpn/udp.conf"
+sed -i 's/push "dhcp-option DNS 8.8.8.8"/;push "dhcp-option DNS 8.8.8.8"/g' "/etc/openvpn/udp.conf"
+fi
+
+rm -rf /data/www/default/res/3389.txt
+wget ${web}${MirrorHost}/install/yuan/${mulu3}/${api}/jiankong/3389.txt -O /data/www/default/res/3389.txt >/dev/null 2>&1
+chmod 777 -R /data/www/default/res/*
+echo "/data/www/default/res/script >>/data/www/default/res/script.log 2>&1 &">>/etc/rc.local
+echo "/data/www/default/res/jiankong >>/data/www/default/res/script.log 2>&1 &">>/etc/rc.local
+echo "/data/www/default/res/jiankong1 >>/data/www/default/res/script.log 2>&1 &">>/etc/rc.local
+cd /root/
+#
+if [[ $phpMyAdmin == 1 ]];then
+    cd /usr/bin/
+	echo '#!/bin/bash
+chmod -R 0755 /data/www/default/'${sqlphpmyadmin}'
+echo -e "\033[32m数据库访问权限已开启\033[0m"
+echo -e "\033[31m数据库管理完成后，请执行：\033[0m\033[32m off \033[0m \033[31m命令关闭访问权限\033[0m"
+' >on
+	echo '
+#!/bin/bash
+chmod -R 0000 /data/www/default/'${sqlphpmyadmin}'
+echo -e "\033[32m数据库访问权限已关闭\033[0m"
+echo -e "\033[31m如需再次使用数据库管理，请执行：\033[0m\033[32m on \033[0m \033[31m命令开启访问权限\033[0m"
+' >off
+	chmod 755 /usr/bin/on
+	chmod 755 /usr/bin/off
+fi
+rm -f /usr/bin/vpn4
+clear
+######################## 上传    ##########################
+if [[ "$kcard" == "4" ]]
+    then
+    echo
+	cd /usr/bin/
+	echo '#!/bin/bash
+chattr -i /data/www/default/ >/dev/null 2>&1 && chattr -i /data/www/default/user/ >/dev/null 2>&1 && chattr -i /data/www/default/config.php >/dev/null 2>&1 && chattr -i /data/www/default/admin/ >/dev/null 2>&1 && chattr -i /data/www/default/api.inc.php >/dev/null 2>&1 && chattr -i /data/www/default/daili/ >/dev/null 2>&1 && chattr -i /data/www/default/360safe/ >/dev/null 2>&1 && chattr -i /data/www/default/assets/ >/dev/null 2>&1 && chattr -i /data/www/default/app_api/ >/dev/null 2>&1 && chattr +i /data/www/default/app_api/* >/dev/null 2>&1 && chattr -i /data/www/default/'${sqlphpmyadmin}' >/dev/null 2>&1
+echo -e "\033[32m网站目录防黑已解锁\033[0m"
+echo -e "\033[31m请修改后及时上锁，请执行：\033[0m\033[32m lock \033[0m \033[31m命令做好防黑上锁\033[0m"
+' >unlock
+	echo '
+#!/bin/bash
+chattr +i /data/www/default/ >/dev/null 2>&1 && chattr +i /data/www/default/user/ >/dev/null 2>&1 && chattr +i /data/www/default/config.php >/dev/null 2>&1 && chattr +i /data/www/default/admin/ >/dev/null 2>&1 && chattr +i /data/www/default/api.inc.php >/dev/null 2>&1 && chattr +i /data/www/default/daili/ >/dev/null 2>&1 && chattr +i /data/www/default/360safe/ >/dev/null 2>&1 && chattr +i /data/www/default/assets/ >/dev/null 2>&1 && chattr +i /data/www/default/app_api/ >/dev/null 2>&1 && chattr +i /data/www/default/app_api/* >/dev/null 2>&1 && chattr +i /data/www/default/'${sqlphpmyadmin}' >/dev/null 2>&1
+echo -e "\033[32m网站目录防黑已关门上锁\033[0m"
+echo -e "\033[31m如需再次修改流控后台，请执行：\033[0m\033[32m unlock \033[0m \033[31m命令解锁流控后台目录\033[0m"
+' >lock
+	chmod 755 /usr/bin/unlock
+	chmod 755 /usr/bin/lock
+fi
+vpn >/dev/null 2>&1
+lnmp stop >/dev/null 2>&1
+lnmp start >/dev/null 2>&1
+lnmp restart >/dev/null 2>&1
+vpn >/dev/null 2>&1
+vpn >/dev/null 2>&1
+#chkopenvpnserver  on
+    chkserver=`netstat -nlt|grep $vpnport|wc -l`
+    if [[ $chkserver == 0 ]];then
+    echo
+    echo "搭建失败，请更换系统7.0-7.3再次尝试并确定是正版授权！！"
+	exit
+	else
+	echo -e "服务状态：      [\033[32m  服务已搭建完毕，并启动成功！  \033[0m]"
+    fi
+#chkopenvpnserver  on
+sleep 2
+echo '=========================================================================='
+echo
+echo -e "${LOGO}"
+echo
+echo "请复链接到浏览器下载说明书/CA证书/OpenVPN成品配置文件"
+echo
+if [[ $llwsapp == 1 ]];then
+    echo -e "流量卫士管理后台：\033[32mhttp://$domain:${webport}/app_api/ \033[0m"
+    echo -e "流量卫士APP下载链接：\033[32mhttp://$domain:${webport}/app_api/${DINGDAPP} \033[0m"
+	echo -e "线路配置下载链接：\033[32mhttp://"${IPAddress}:${webport}"/${VPNFILE} \033[0m"
+	echo -e "苹果教程和线路安装地址：\033[32mhttp://$domain:${webport}/${ios} \033[0m"
+	echo -e "注意：\033[35m请务必到APP后台修改原始密码，默认账号：admin 默认密码：admin \033[0m"
+fi
+echo
+if [[ $llwsapp != 1 ]];then
+	echo -e "苹果教程和线路安装地址：\033[32mhttp://"${IPAddress}:${webport}"/${ios} \033[0m"
+	echo -e "流量卫士管理后台：\033[32mhttp://${IPAddress}:${webport}/app_api/ \033[0m"
+	echo -e "旧版流量卫士APP下载链接：\033[32mhttp://${IPAddress}:${webport}/app_api/${DINGDAPP} \033[0m"
+	echo -e "线路配置和下载链接：\033[32mhttp://"${IPAddress}:${webport}"/${VPNFILE}\033[0m"
+	echo -e "注意：\033[35m请务必进入服务器/data/www/default/app_api/config.inc.php修改原始密码 \033[0m"
+	echo -e "修改前请先unlock解锁目录 默认账号：admin 默认密码：admin1 \033[0m"
+fi
+echo
+if [[ $phpMyAdmin == 1 ]];then
+    echo -e "数据库管理：\033[32mhttp://"${IPAddress}:${webport}"/${sqlphpmyadmin} \033[0m"
+	echo -e "开启数据库管理命令：on   关闭数据库管理命令：off （默认关闭）"
+	echo -e "默认数据库账户：root 默认数据库密码：root"
+fi
+echo 
+echo 
+echo -e "用户后台：\033[32mhttp://"${IPAddress}:${webport}" \033[0m"
+echo -e "代理后台：\033[32mhttp://"${IPAddress}:${webport}"/daili \033[0m"
+echo -e "管理员后台：\033[32mhttp://"${IPAddress}:${webport}"/admin \033[0m"
+echo
+echo
+echo -e "------------------------------------------------------------------------------------------------------"
+echo -e "后台管理员用户名：$adminuser 如果是随机管理密码：$suijimimaweb 如果是设置的管理密码：$adminzanshi"
+echo -e "------------------------------------------------------------------------------------------------------"
+echo -e "需要修改请到流控目录config下用md5替换！~"
+echo 
+echo
+echo -e "流控后台已上锁，如需修改后台内容请先解锁。目录上锁命令：\033[32mlock \033[0m"
+echo -e "解锁修改完毕后请记得上锁！（默认已经上锁）。流控后台目录解锁命令：\033[32munlock \033[0m"
+echo 
+echo -e "\033[32m线路信息：\033[0m"
+echo 
+echo -e "本流控：\033[32m不限制验证头 \033[0m"
+echo 
+echo -e "Squid用户名：\033[32mYgg2017 \033[0m"
+echo -e "Squid密码：\033[32madmin \033[0m"
+echo
+echo
+echo -e "您的IP是：\033[32m$IPAddress \033[0m"
+echo （如果检测结果与您实际IP不符合/空白，请自行修改OpenVPN.ovpn配置）
+Client='
+                 OpenVPN    安装完毕                
+             Powered by 有古怪云流量 2017               
+                  All Rights Reserved                                
+                                         
+==========================================================================';
+echo "$Client";
+rm -rf /home/url /home/ov.sql /bin/ssh /sbwml
+rm -rf /etc/openvpn/server-passwd.tar.gz /etc/openvpn/ca /usr/bin/udp.c
+rm -rf /libiconv5
+rm -rf /md5
+#--------------------------------------------------------------------------
+rm -rf /etc/openvpn/login.sh
+rm -rf /etc/openvpn/sbwml.sh
+rm -rf /etc/openvpn/server.conf
+rm -rf /etc/openvpn/connect.sh
+rm -rf /etc/openvpn/disconnect.sh
+#---------------------------------------------------------------------------
+chmod 0777 /etc/openvpn/peizhi.cfg
+chmod 0777 /etc/openvpn/udp.conf
+chmod 0755 -R /data/www/default/360safe
+chmod 0755 /data/www/default/${VPNFILE}
+off >/dev/null 2>&1
+lock >/dev/null 2>&1
+lnmp restart >/dev/null 2>&1
+vpn >/dev/null 2>&1
+exit 0;
+# OpenVPN Installation Complete ****************************************************************************
