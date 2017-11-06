@@ -33,7 +33,9 @@ echo -e "\033[36m 10.搭建爱云免流控（支持CentOS 6.x） \033[0m"
 echo
 echo -e "\033[36m 11.安装锐速\033[0m"
 echo
-echo -e  "\033[36m 请选择 [ 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10，11 ] 进行下一步安装！\033[0m
+echo -e "\033[36m 12.搭建sstap游戏加速器 \033[0m"
+echo
+echo -e  "\033[36m 请选择 [ 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10，11,12 ] 进行下一步安装！\033[0m
  
  >请选择安装类型: "
 read az
@@ -60,6 +62,8 @@ read az
        ;;
        11) wget -q https://github.com/liehuolianyu/test/raw/master/serverspeeder.sh && bash serverspeeder.sh
        ;;
-    *)  echo -e "\033[31m 错误：只能选择[ 1 , 2 , 3, 4 , 5 , 6 , 7 , 8 , 9 , 10 ,11]！！\033[0m"
+       12) wget -q https://github.com/liehuolianyu/test/raw/master/ssr.sh && bash ssr.sh
+       ;;
+    *)  echo -e "\033[31m 错误：只能选择[ 1 , 2 , 3, 4 , 5 , 6 , 7 , 8 , 9 , 10 ,11,12]！！\033[0m"
        ;; 
   esac
