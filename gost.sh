@@ -112,9 +112,9 @@ function pre_install(){
     echo	
 		
 	if [ "$xzy" == "2" ];then
-	    xzy="http://cdn.yunmaopt.cc/gost/gost_2.3_linux_amd64.tar.gz"
+	    xzy="https://github.com/liehuolianyu/test/raw/master/gost_2.3_linux_amd64.tar.gz"
     else
-	    xzy="https://code.aliyun.com/supppig/gost/raw/master/gost_2.3_linux_amd64.tar.gz"
+	    xzy="https://github.com/liehuolianyu/test/raw/master/gost_2.3_linux_amd64.tar.gz"
 	fi
 	
 	# Install necessary dependencies
