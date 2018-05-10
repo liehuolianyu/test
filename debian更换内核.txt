@@ -1,0 +1,7 @@
+apt-get remove linux-image-3.16.0-5-amd64 删除内核
+
+wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.9-rc8/linux-image-4.9.0-040900rc8-generic_4.9.0-040900rc8.201612051443_amd64.deb  下载内核
+
+dpkg -i linux-image-4.9.0*.deb  安装内核
+
+dpkg -l|grep linux-image  查看当前内核
