@@ -1,15 +1,15 @@
 apt-get install make  
-apt-get install gcc-multilib  
-apt-get install build-essential   ÅäÖÃ»·¾³
+apt-get install gcc-multilib //å®‰è£…å¤±è´¥æ›´æ–°aptæº æ”¹å®Œè¦ apt-get update 
+apt-get install build-essential   é…ç½®ç¯å¢ƒ
 
 
-wget http://www.softether-download.com/files/softether/v4.21-9613-beta-2016.04.24-tree/Linux/SoftEther_VPN_Server/64bit_-_Intel_x64_or_AMD64/softether-vpnserver-v4.21-9613-beta-2016.04.24-linux-x64-64bit.tar.gz   ÏÂÔØ°²×°°ü
+wget http://www.softether-download.com/files/softether/v4.21-9613-beta-2016.04.24-tree/Linux/SoftEther_VPN_Server/64bit_-_Intel_x64_or_AMD64/softether-vpnserver-v4.21-9613-beta-2016.04.24-linux-x64-64bit.tar.gz   ä¸‹è½½å®‰è£…åŒ…
 
 
-tar -zxvf softether-vpnserver-v4.21-9613-beta-2016.04.24-linux-x64-64bit.tar.gz  ½âÑ¹
+tar -zxvf softether-vpnserver-v4.21-9613-beta-2016.04.24-linux-x64-64bit.tar.gz  è§£å‹
 
 cd vpnserver
-make   °²×°
+make   å®‰è£…
 ./vpnserver start
 
 
