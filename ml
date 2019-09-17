@@ -48,7 +48,7 @@ read az
        ;;
     3) wget -q https://github.com/liehuolianyu/test/raw/master/SSR && bash SSR
        ;;
-    4) wget https://github.com/liehuolianyu/test/raw/master/ssr2.zip && unzip ssr2.zip && bash ssr2
+    4) wget https://github.com/liehuolianyu/test/raw/master/ssr2.tar.gz && tar -zxvf ssr2.tar.gz && bash ssr2
        ;;
 	5) wget -q https://github.com/liehuolianyu/test/raw/master/gost.sh && bash gost.sh
 	   ;;
