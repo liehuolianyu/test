@@ -1,0 +1,23 @@
+华为云win2008 64 搭建ssr教程
+1.默认安装!!git,Pytho,,openssl，c++2008支持（附件都是64位的）（附件提供下载）
+2.安装SSR
+打开路径C:\Python34\Scripts文件夹，按住Shift和鼠标右键—在此处打开命令窗口
+输入：
+git clone -b manyuser https://github.com/ToyoDAdoubi/shadowsocksr.git（回车）（资源已失效）
+
+解压附件中的压缩包即可
+
+3.修改配置文件
+输入C:\Python34\Scripts\shadowsocksr/config.json（回车）
+编辑配置文件可以复制进去稍加修改（附件提供下载）
+
+4.运行SSR
+打开路径C:\Python34\Scripts\shadowsocksr\shadowsocks文件夹
+同样按住Shift和鼠标右键—在此处打开命令窗口然后输入server.py回车
+大功告成！！本人纯小白，教程搜集自互联网
+yaohuoid27907
+
+5补充
+若使用chacha20加密方式，需要将libsodium.dll放到windos/system32 中，下载地址
+https://download.libsodium.org/libsodium/releases/
+选择带有msvc的包解压，在libsodium-1.0.18-msvc\libsodium\x64\Release\v120\dynamic 中
