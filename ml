@@ -37,6 +37,8 @@ echo -e "\033[36m 12.搭建sstap游戏加速器 \033[0m"
 echo
 echo -e "\033[36m 13.安装bbr加速\033[0m"
 echo
+echo -e "\033[36m 14.快云 dxy修复版\033[0m"
+echo
 echo -e  "\033[36m 请选择 [ 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10，11,12 ] 进行下一步安装！\033[0m
  
  >请选择安装类型: "
@@ -68,6 +70,8 @@ read az
        ;;
         13) wget -q https://github.com/liehuolianyu/test/raw/master/bbr.sh && bash bbr.sh
        ;;
-    *)  echo -e "\033[31m 错误：只能选择[ 1 , 2 , 3, 4 , 5 , 6 , 7 , 8 , 9 , 10 ,11,12 ,13]！！\033[0m"
+       14) wget -q https://github.com/liehuolianyu/test/raw/master/ky.sh && bash ky.sh
+       ;;
+    *)  echo -e "\033[31m 错误：只能选择[ 1 , 2 , 3, 4 , 5 , 6 , 7 , 8 , 9 , 10 ,11,12 ,13，14]！！\033[0m"
        ;; 
   esac
